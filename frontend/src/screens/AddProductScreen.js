@@ -1,0 +1,374 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Switch,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import GHButton from '../components/GHButton';
+import SkinTypeTag from '../components/SkinTypeTag';
+import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
+
+const SKIN_TYPES = ['Oily', 'Dry', 'Sensitive', 'Combination', 'Mature'];
+const CATEGORIES = ['SERUMS', 'OILS', 'CLEANSERS', 'BALMS', 'MISTS'];
+
+const AddProductScreen = ({ navigation }) => {
+  const [title, setTitle] = useState('');
+  const [price, setPrice] = useState('');
+  const [stock, setStock] = useState('100');
+  const [ingredients, setIngredients] = useState('');
+  const [selectedSkinTypes, setSelectedSkinTypes] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('SERUMS');
+  const [visible, setVisible] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const toggleSkinType = (tag) => {
+    setSelectedSkinTypes(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleSave = () => {
+    if (!title || !price) {
+      Alert.alert('Missing fields', 'Please enter product title and price.');
+      return;
+    }
+    setSaving(true);
+    // TODO: Wire up to Create Product API
+    setTimeout(() => {
+      setSaving(false);
+      Alert.alert('Product Saved', `"${title}" has been added to the archive.`, [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    }, 1200);
+  };
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="menu-outline" size={26} color={Colors.black} />
+        </TouchableOpacity>
+        <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
+        <TouchableOpacity>
+          <View style={styles.avatarCircle}>
+            <Ionicons name="person-outline" size={18} color={Colors.primary} />
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+        {/* Page heading */}
+        <View style={styles.titleBlock}>
+          <Text style={styles.eyebrow}>CATALOGUE › NEW ARCHIVE ENTRY</Text>
+          <Text style={styles.pageTitle}>Add New{'\n'}Product</Text>
+          <Text style={styles.subtitle}>
+            Curate your next botanical masterpiece. Fill in the technical specifications for the new clinical formulation.
+          </Text>
+        </View>
+
+        {/* Form Card */}
+        <View style={styles.card}>
+
+          {/* Product Title */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>PRODUCT TITLE</Text>
+            <TextInput
+              style={styles.inputField}
+              value={title}
+              onChangeText={setTitle}
+              placeholder="e.g., Ceramide Cloud Nectar"
+              placeholderTextColor={Colors.border}
+            />
+          </View>
+
+          {/* Price + Stock row */}
+          <View style={styles.row}>
+            <View style={[styles.fieldGroup, { flex: 1, marginRight: Spacing.sm }]}>
+              <Text style={styles.fieldLabel}>PRICE ($)</Text>
+              <TextInput
+                style={styles.inputField}
+                value={price}
+                onChangeText={setPrice}
+                placeholder="0.00"
+                placeholderTextColor={Colors.border}
+                keyboardType="decimal-pad"
+              />
+            </View>
+            <View style={[styles.fieldGroup, { flex: 1 }]}>
+              <Text style={styles.fieldLabel}>STOCK QUANTITY</Text>
+              <TextInput
+                style={styles.inputField}
+                value={stock}
+                onChangeText={setStock}
+                placeholder="100"
+                placeholderTextColor={Colors.border}
+                keyboardType="number-pad"
+              />
+            </View>
+          </View>
+
+          {/* Ingredients */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>TECHNICAL INGREDIENTS LIST</Text>
+            <TextInput
+              style={[styles.inputField, styles.textArea]}
+              value={ingredients}
+              onChangeText={setIngredients}
+              placeholder="List active botanicals and clinical compounds..."
+              placeholderTextColor={Colors.border}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+          </View>
+
+          {/* Skin type */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>TARGET SKIN TYPE</Text>
+            <View style={styles.tagRow}>
+              {SKIN_TYPES.map(tag => (
+                <SkinTypeTag
+                  key={tag}
+                  label={tag}
+                  selected={selectedSkinTypes.includes(tag)}
+                  onPress={() => toggleSkinType(tag)}
+                />
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <GHButton
+            title="Save Product"
+            onPress={handleSave}
+            loading={saving}
+            style={styles.saveBtn}
+          />
+          <GHButton
+            title="Cancel"
+            variant="outline"
+            onPress={() => navigation.goBack()}
+            style={styles.cancelBtn}
+          />
+        </View>
+
+        {/* Upload image card */}
+        <View style={styles.card}>
+          <Text style={styles.fieldLabel}>PRODUCT IMAGERY</Text>
+          <TouchableOpacity style={styles.uploadBox} activeOpacity={0.8}>
+            <Ionicons name="image-outline" size={40} color={Colors.secondary} />
+            <Text style={styles.uploadTitle}>Upload Editorial Shot</Text>
+            <Text style={styles.uploadHint}>
+              DRAG & DROP HIGH-RESOLUTION JPG OR PNG{'\n'}RECOMMENDED 1080×1080PX
+            </Text>
+          </TouchableOpacity>
+
+          {/* Tip */}
+          <View style={styles.tipRow}>
+            <Ionicons name="sparkles-outline" size={14} color={Colors.tertiary} />
+            <Text style={styles.tipText}>
+              For the best editorial aesthetic, use natural ambient lighting and soft shadows. Minimal styling preferred.
+            </Text>
+          </View>
+        </View>
+
+        {/* Archive Status */}
+        <View style={styles.card}>
+          <Text style={styles.fieldLabel}>ARCHIVE STATUS</Text>
+          <View style={styles.statusRow}>
+            <View style={[styles.statusDot, { backgroundColor: visible ? Colors.success : Colors.secondary }]} />
+            <Text style={styles.statusLabel}>{visible ? 'Visible in Shop' : 'Hidden'}</Text>
+            <Switch
+              value={visible}
+              onValueChange={setVisible}
+              trackColor={{ false: Colors.border, true: Colors.primary }}
+              thumbColor={Colors.white}
+            />
+          </View>
+
+          {/* Category */}
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>CATEGORY</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+                {CATEGORIES.map(cat => (
+                  <TouchableOpacity
+                    key={cat}
+                    onPress={() => setSelectedCategory(cat)}
+                    style={[styles.catChip, selectedCategory === cat && styles.catChipActive]}
+                  >
+                    <Text style={[styles.catText, selectedCategory === cat && styles.catTextActive]}>
+                      {cat}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>LAST EDITED</Text>
+            <Text style={styles.metaValue}>JUST NOW</Text>
+          </View>
+        </View>
+
+        <View style={{ height: Spacing.xxxl }} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: Colors.neutral },
+  scroll: { paddingBottom: 40 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+  },
+  headerLogo: { fontSize: Typography.md, fontWeight: '700', color: Colors.black },
+  avatarCircle: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: Colors.neutralDark, alignItems: 'center', justifyContent: 'center',
+  },
+
+  titleBlock: { paddingHorizontal: Spacing.base, paddingBottom: Spacing.lg },
+  eyebrow: { fontSize: Typography.xs, letterSpacing: Typography.wider, color: Colors.secondary, fontWeight: '600', marginBottom: Spacing.xs },
+  pageTitle: { fontSize: Typography.xxxl, fontFamily: 'Georgia', fontWeight: '700', color: Colors.black, lineHeight: 42, marginBottom: Spacing.sm },
+  subtitle: { fontSize: Typography.sm, color: Colors.secondary, lineHeight: 20 },
+
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.xl,
+    padding: Spacing.base,
+    marginHorizontal: Spacing.base,
+    marginBottom: Spacing.base,
+    ...Shadow.sm,
+  },
+  fieldGroup: { marginBottom: Spacing.base },
+  fieldLabel: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wider,
+    color: Colors.secondary,
+    fontWeight: '600',
+    marginBottom: Spacing.sm,
+  },
+  inputField: {
+    backgroundColor: Colors.neutral,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+    fontSize: Typography.md,
+    color: Colors.black,
+  },
+  textArea: {
+    minHeight: 100,
+    paddingTop: Spacing.md,
+  },
+  row: { flexDirection: 'row', marginBottom: Spacing.base },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap' },
+
+  actionRow: {
+    flexDirection: 'row',
+    paddingHorizontal: Spacing.base,
+    marginBottom: Spacing.base,
+    gap: Spacing.sm,
+  },
+  saveBtn: { flex: 2 },
+  cancelBtn: { flex: 1 },
+
+  // Upload
+  uploadBox: {
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    borderStyle: 'dashed',
+    borderRadius: Radius.lg,
+    padding: Spacing.xxl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.base,
+  },
+  uploadTitle: {
+    fontSize: Typography.lg,
+    fontFamily: 'Georgia',
+    fontWeight: '700',
+    color: Colors.black,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  uploadHint: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wide,
+    color: Colors.secondary,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  tipRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    paddingTop: Spacing.sm,
+  },
+  tipText: { fontSize: Typography.xs, color: Colors.secondary, flex: 1, lineHeight: 18 },
+
+  // Status
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.base,
+  },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusLabel: { flex: 1, fontSize: Typography.base, color: Colors.black, fontWeight: '500' },
+
+  metaRow: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    paddingTop: Spacing.base,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  metaLabel: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wider,
+    color: Colors.secondary,
+    fontWeight: '600',
+  },
+  metaValue: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wider,
+    color: Colors.textLight,
+    fontWeight: '500',
+  },
+  catChip: {
+    borderRadius: Radius.pill,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    backgroundColor: Colors.white,
+  },
+  catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  catText: { fontSize: Typography.xs, color: Colors.secondary, fontWeight: '600' },
+  catTextActive: { color: Colors.white },
+});
+
+export default AddProductScreen;

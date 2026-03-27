@@ -1,0 +1,370 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import GHButton from '../components/GHButton';
+import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
+
+const MOCK_PRODUCT = {
+  _id: '1',
+  title: 'Acidic Refinement Nº7',
+  price: 124.00,
+  size: '30ML / 1.0 FL OZ',
+  stock: 2,
+  description:
+    'A transformative nocturnal resurfacing treatment engineered with molecular precision of the AHAs. Designed to gently dissolve cellular debris while reinforcing the skin lipid barrier for a refined, luminous architectural finish.',
+  ingredients: ['Salicylic Acid 2%', 'Niacinamide', 'Squalane', 'Green Tea Extract'],
+  skinTypeTags: ['Oily', 'Dry', 'Sensitive'],
+  category: 'SERUM COLLECTION',
+  imageUrl: null,
+};
+
+const MOCK_REVIEWS = [
+  {
+    _id: 'r1',
+    author: 'ADRIANA G.',
+    rating: 5,
+    date: 'VERIFIED PURCHASE',
+    text: '"The texture is dreamy. Within a week, my skin texture was noticeably smoother. This is a clinical experience in a bottle."',
+  },
+  {
+    _id: 'r2',
+    author: 'JULIAN L.',
+    rating: 5,
+    date: 'VERIFIED PURCHASE',
+    text: "Finely, an acid that doesn't strip my moisture barrier. The squalane addition is genius. My evening ritual uses antonymous.",
+  },
+  {
+    _id: 'r3',
+    author: 'MIRA K.',
+    rating: 5,
+    date: 'VERIFIED PURCHASE',
+    text: '"Elegant packaging and effective formula. Minimalist yet powerful. A staple in my refined skincare architecture."',
+  },
+];
+
+const StarRating = ({ rating, size = 14 }) => {
+  return (
+    <View style={{ flexDirection: 'row', gap: 2 }}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <Ionicons
+          key={i}
+          name={i <= rating ? 'star' : 'star-outline'}
+          size={size}
+          color={Colors.tertiary}
+        />
+      ))}
+    </View>
+  );
+};
+
+const ProductDetailScreen = ({ route, navigation }) => {
+  const product = route?.params?.product || MOCK_PRODUCT;
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [addingToCart, setAddingToCart] = useState(false);
+
+  const handleAddToCart = () => {
+    setAddingToCart(true);
+    setTimeout(() => {
+      setAddingToCart(false);
+      Alert.alert('Added to Bag', `${product.title} has been added to your bag.`);
+    }, 800);
+  };
+
+  const avgRating = (MOCK_REVIEWS.reduce((s, r) => s + r.rating, 0) / MOCK_REVIEWS.length).toFixed(1);
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+          <Ionicons name="chevron-back" size={22} color={Colors.black} />
+        </TouchableOpacity>
+        <Text style={styles.headerLogo}>GlowHive</Text>
+        <TouchableOpacity style={styles.headerBtn}>
+          <Ionicons name="bag-outline" size={22} color={Colors.black} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Image area */}
+        <View style={styles.imageArea}>
+          <View style={styles.mainImageBox}>
+            <View style={styles.imagePlaceholder}>
+              <Ionicons name="flask-outline" size={56} color={Colors.primary} />
+            </View>
+          </View>
+          {/* Thumbnail row */}
+          <View style={styles.thumbRow}>
+            {[0, 1].map(i => (
+              <TouchableOpacity
+                key={i}
+                onPress={() => setSelectedImage(i)}
+                style={[styles.thumb, selectedImage === i && styles.thumbActive]}
+              >
+                <View style={styles.thumbPlaceholder}>
+                  <Text style={styles.thumbNum}>{i + 1}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.contentPad}>
+          {/* Category */}
+          <Text style={styles.categoryLabel}>{product.category}</Text>
+
+          {/* Title */}
+          <Text style={styles.title}>{product.title}</Text>
+
+          {/* Price */}
+          <Text style={styles.price}>${product.price?.toFixed(2)}</Text>
+          <Text style={styles.size}>{product.size || '30ML'}</Text>
+
+          {/* Description */}
+          <Text style={styles.description}>{product.description}</Text>
+
+          {/* Stock warning */}
+          {product.stock <= 5 && product.stock > 0 && (
+            <Text style={styles.stockAlert}>• ONLY {product.stock} UNITS REMAINING</Text>
+          )}
+
+          {/* Add to Cart */}
+          <GHButton
+            title="ADD TO CART"
+            onPress={handleAddToCart}
+            loading={addingToCart}
+            style={styles.addCartBtn}
+            disabled={product.stock === 0}
+          />
+
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Molecular Composition */}
+          <Text style={styles.sectionTitle}>Molecular Composition</Text>
+          <View style={styles.ingredientsGrid}>
+            {(product.ingredients || MOCK_PRODUCT.ingredients).map((ing, i) => (
+              <View key={i} style={styles.ingredientChip}>
+                <Text style={styles.ingredientText}>{ing.toUpperCase()}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Customer Testimonials */}
+          <Text style={styles.sectionTitle}>Customer Testimonials</Text>
+          <View style={styles.ratingRow}>
+            <StarRating rating={5} size={16} />
+            <Text style={styles.ratingNum}>{avgRating} ({MOCK_REVIEWS.length} Reviews)</Text>
+          </View>
+
+          <GHButton
+            title="WRITE REVIEW"
+            variant="outline"
+            style={styles.writeReviewBtn}
+            onPress={() => {}}
+          />
+
+          {MOCK_REVIEWS.map(review => (
+            <View key={review._id} style={styles.reviewCard}>
+              <StarRating rating={review.rating} />
+              <Text style={styles.reviewDate}>{review.date}</Text>
+              <Text style={styles.reviewText}>{review.text}</Text>
+              <View style={styles.reviewAuthorRow}>
+                <View style={styles.reviewAvatar}>
+                  <Text style={styles.reviewAvatarText}>{review.author[0]}</Text>
+                </View>
+                <Text style={styles.reviewAuthor}>{review.author}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: Colors.neutral },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+  },
+  headerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.sm,
+  },
+  headerLogo: {
+    fontSize: Typography.md,
+    fontWeight: '700',
+    color: Colors.black,
+  },
+
+  // Image area
+  imageArea: { paddingHorizontal: Spacing.base, marginBottom: Spacing.base },
+  mainImageBox: {
+    backgroundColor: Colors.primaryDark,
+    borderRadius: Radius.xl,
+    height: 280,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.sm,
+  },
+  imagePlaceholder: { alignItems: 'center', justifyContent: 'center' },
+  thumbRow: { flexDirection: 'row', gap: Spacing.sm },
+  thumb: {
+    width: 60,
+    height: 60,
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  thumbActive: { borderColor: Colors.primary },
+  thumbPlaceholder: {
+    flex: 1,
+    backgroundColor: Colors.primaryDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbNum: { color: Colors.white, fontWeight: '700', fontSize: Typography.md },
+
+  // Content
+  contentPad: { paddingHorizontal: Spacing.base, paddingBottom: Spacing.xxxl },
+  categoryLabel: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.widest,
+    color: Colors.secondary,
+    fontWeight: '600',
+    marginBottom: Spacing.sm,
+  },
+  title: {
+    fontSize: Typography.xxl,
+    fontFamily: 'Georgia',
+    fontWeight: '700',
+    color: Colors.black,
+    lineHeight: 34,
+    marginBottom: Spacing.sm,
+  },
+  price: {
+    fontSize: Typography.xxl,
+    color: Colors.black,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  size: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wide,
+    color: Colors.secondary,
+    marginBottom: Spacing.base,
+  },
+  description: {
+    fontSize: Typography.base,
+    color: Colors.textMuted,
+    lineHeight: 22,
+    marginBottom: Spacing.base,
+  },
+  stockAlert: {
+    fontSize: Typography.xs,
+    color: Colors.error,
+    letterSpacing: Typography.wide,
+    fontWeight: '600',
+    marginBottom: Spacing.base,
+  },
+  addCartBtn: { width: '100%', marginBottom: Spacing.xl },
+  divider: { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.xl },
+
+  sectionTitle: {
+    fontSize: Typography.lg,
+    fontFamily: 'Georgia',
+    fontWeight: '700',
+    color: Colors.black,
+    marginBottom: Spacing.base,
+  },
+  ingredientsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  ingredientChip: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+  },
+  ingredientText: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wide,
+    color: Colors.secondary,
+    fontWeight: '500',
+  },
+
+  // Reviews
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.base,
+  },
+  ratingNum: {
+    fontSize: Typography.sm,
+    color: Colors.secondary,
+    fontWeight: '500',
+  },
+  writeReviewBtn: { marginBottom: Spacing.xl },
+  reviewCard: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    padding: Spacing.base,
+    marginBottom: Spacing.base,
+    ...Shadow.sm,
+  },
+  reviewDate: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wide,
+    color: Colors.secondary,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  reviewText: {
+    fontSize: Typography.sm,
+    color: Colors.black,
+    lineHeight: 20,
+    fontStyle: 'italic',
+    marginBottom: Spacing.sm,
+  },
+  reviewAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  reviewAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.primaryDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reviewAvatarText: { color: Colors.white, fontSize: Typography.xs, fontWeight: '700' },
+  reviewAuthor: { fontSize: Typography.xs, fontWeight: '700', color: Colors.black, letterSpacing: Typography.wide },
+});
+
+export default ProductDetailScreen;
