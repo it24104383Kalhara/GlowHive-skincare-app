@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,14 @@ import { Ionicons } from '@expo/vector-icons';
 import GHButton from '../components/GHButton';
 import GHInput from '../components/GHInput';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
+import { AuthContext } from '../contexts/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -27,12 +30,16 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
     setLoading(true);
-    // TODO: Wire up to auth API
-    setTimeout(() => {
-      setLoading(false);
-      navigation.replace('MainTabs');
-    }, 1200);
+    const result = await login(email, password);
+    setLoading(false);
+
+    if (result.success) {
+      // Navigation is handled dynamically by AppNavigator
+    } else {
+      Alert.alert('Login Failed', result.message);
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.safe}>
