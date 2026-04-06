@@ -1,15 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ProductListScreen from '../screens/ProductListScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import AddProductScreen from '../screens/AddProductScreen';
 import { Colors, Typography } from '../utils/theme';
+import { AuthContext } from '../contexts/AuthContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -61,36 +63,60 @@ const MainTabs = () => {
 // ─────────────────────────────────────────────
 // Placeholder screen for Profile
 // ─────────────────────────────────────────────
-const ProfilePlaceholder = ({ navigation }) => (
-  <View style={styles.placeholder}>
-    <Ionicons name="person-circle-outline" size={72} color={Colors.primary} />
-    <Text style={styles.placeholderTitle}>Your Profile</Text>
-    <Text style={styles.placeholderSub}>Order history, skin diary & support will live here.</Text>
-    <TouchableOpacity
-      style={styles.logoutBtn}
-      onPress={() => navigation.replace('Login')}
-    >
-      <Text style={styles.logoutText}>LOG OUT</Text>
-    </TouchableOpacity>
-  </View>
-);
+const ProfilePlaceholder = ({ navigation }) => {
+  const { user, logout } = useContext(AuthContext);
+  
+  return (
+    <View style={styles.placeholder}>
+      <Ionicons name="person-circle-outline" size={72} color={Colors.primary} />
+      <Text style={styles.placeholderTitle}>{user?.name || 'Your Profile'}</Text>
+      <Text style={styles.placeholderSub}>Email: {user?.email}</Text>
+      <Text style={styles.placeholderSub}>Order history, skin diary & support will live here.</Text>
+      <TouchableOpacity
+        style={styles.logoutBtn}
+        onPress={logout}
+      >
+        <Text style={styles.logoutText}>LOG OUT</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 // ─────────────────────────────────────────────
 // Root Stack Navigator
 // ─────────────────────────────────────────────
 const AppNavigator = () => {
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    )
+  }
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="MainTabs" component={MainTabs} />
-      <Stack.Screen
-        name="ProductDetail"
-        component={ProductDetailScreen}
-        options={{ animation: 'slide_from_right' }}
-      />
+      {user ? (
+        <>
+          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <Stack.Screen
+            name="ProductDetail"
+            component={ProductDetailScreen}
+            options={{ animation: 'slide_from_right' }}
+          />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };
+
 
 const styles = StyleSheet.create({
   placeholder: {
