@@ -1,0 +1,221 @@
+import React, { useState, useContext } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import GHButton from '../components/GHButton';
+import GHInput from '../components/GHInput';
+import { AuthContext } from '../contexts/AuthContext';
+import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
+
+const RegisterScreen = ({ navigation }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const { register } = useContext(AuthContext);
+
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert('Missing Fields', 'Please fill all fields.');
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match.');
+      return;
+    }
+
+    setLoading(true);
+    const result = await register(name, email, password);
+    setLoading(false);
+
+    if (result.success) {
+      // Navigation happens dynamically via Navigator
+    } else {
+      Alert.alert('Registration Failed', result.message);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Top bar */}
+          <View style={styles.topBar}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color={Colors.black} />
+            </TouchableOpacity>
+            <Text style={styles.topBarTitle}>THE CLINICAL EDITORIAL</Text>
+            <View style={{ width: 24 }} />
+          </View>
+
+          {/* Hero Header */}
+          <View style={styles.header}>
+            <Text style={styles.brandLabel}>GLOW HIVE SKINCARE</Text>
+            <Text style={styles.heroTitle}>Create Account</Text>
+          </View>
+
+          {/* Form */}
+          <View style={styles.form}>
+            <GHInput
+              label="Full Name"
+              value={name}
+              onChangeText={setName}
+              placeholder="Full Name"
+              autoCapitalize="words"
+            />
+            <GHInput
+              label="Email Address"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="name@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <GHInput
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="••••••••"
+              secureTextEntry
+            />
+            <GHInput
+              label="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="••••••••"
+              secureTextEntry
+            />
+
+            <View style={styles.ctaRow}>
+              <GHButton
+                title="CREATE ACCOUNT"
+                onPress={handleRegister}
+                loading={loading}
+                style={styles.registerBtn}
+              />
+            </View>
+
+            <View style={styles.loginRow}>
+              <Text style={styles.loginText}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.loginLink}>Login here</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.heroImageStrip}>
+            <View style={styles.heroImagePlaceholder}>
+              <Text style={styles.heroImageLabel}>✦ JOIN THE HIVE</Text>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: Colors.neutral,
+  },
+  scroll: {
+    flexGrow: 1,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+  },
+  topBarTitle: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.wider,
+    fontWeight: '700',
+    color: Colors.black,
+    textTransform: 'uppercase',
+  },
+  header: {
+    alignItems: 'center',
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.xl,
+  },
+  brandLabel: {
+    fontSize: Typography.xs,
+    letterSpacing: Typography.widest,
+    fontWeight: '600',
+    color: Colors.secondary,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.sm,
+  },
+  heroTitle: {
+    fontSize: Typography.xxxl,
+    fontFamily: 'Georgia',
+    fontWeight: '700',
+    color: Colors.black,
+    letterSpacing: Typography.tight,
+  },
+  form: {
+    paddingHorizontal: Spacing.base,
+    paddingBottom: Spacing.xxl,
+  },
+  ctaRow: {
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.xl,
+  },
+  registerBtn: {
+    width: '100%',
+  },
+  loginRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: Spacing.xl,
+  },
+  loginText: {
+    fontSize: Typography.base,
+    color: Colors.secondary,
+  },
+  loginLink: {
+    fontSize: Typography.base,
+    color: Colors.black,
+    fontWeight: '700',
+  },
+  heroImageStrip: {
+    height: 120,
+    marginTop: Spacing.lg,
+  },
+  heroImagePlaceholder: {
+    flex: 1,
+    backgroundColor: Colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroImageLabel: {
+    color: Colors.white,
+    fontSize: Typography.xl,
+    letterSpacing: Typography.wider,
+    fontWeight: '300',
+  },
+});
+
+export default RegisterScreen;
