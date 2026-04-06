@@ -13,27 +13,36 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
-const MOCK_TRENDING = [
-  { _id: '1', title: 'Cellular Nectar', price: 84.00, imageUrl: null, category: 'SERUM' },
-  { _id: '2', title: 'Velvet Rose Elixir', price: 112.00, imageUrl: null, category: 'OIL' },
-];
-
-const MOCK_ESSENTIALS = [
-  { _id: '3', title: 'Sun Defense Elixir', price: 58.00, imageUrl: null, description: 'Available with SPF 100 and SPF 50 and SPF sunscreen for instant protection glow.' },
-  { _id: '4', title: 'Rose Water Mist', price: 39.00, imageUrl: null, description: null },
-  { _id: '5', title: 'Mineral Polish', price: 48.00, imageUrl: null, description: null },
-  { _id: '6', title: 'Brightner Eye Gel', price: 84.00, imageUrl: null, description: null },
-];
+import productService from '../services/productService';
 
 const HomeScreen = ({ navigation }) => {
   const [greeting, setGreeting] = useState('');
+  const [trendingProducts, setTrendingProducts] = useState([]);
+  const [essentials, setEssentials] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting('Good Morning');
     else if (hour < 17) setGreeting('Good Afternoon');
     else setGreeting('Good Evening');
+
+    fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const data = await productService.getProducts();
+      // For demo, just slice them
+      setTrendingProducts(data.slice(0, 3));
+      setEssentials(data.slice(3, 7));
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const renderTrendingCard = ({ item }) => (
     <TouchableOpacity

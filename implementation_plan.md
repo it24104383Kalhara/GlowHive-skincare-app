@@ -50,7 +50,9 @@
 3. [ ] **Frontend to Backend Integration**: Configure Axios, create `services/api.js`, and replace mock data in `HomeScreen` and `ProductListScreen` with live API calls.
 4. [ ] **Fix Minor Frontend Bugs**: E.g., standardize string quoting in `ProductDetailScreen.js` mock data.
 
+
 ## Phase 3: Authentication & User Handling
-1. [ ] **Backend Auth Core**: Build User schema, user registration/login logic, and JWT authentication middleware.
-2. [ ] **Frontend Auth Handling**: Build Auth Context, implement secure token storage, and wire up `LoginScreen`.
+1. ✅ **Backend Auth Core**: Build User schema, user registration/login logic, and JWT authentication middleware.
+2. ✅ **Frontend Auth Handling**: Build Auth Context, implement secure token storage, and wire up `LoginScreen`.
 3. [ ] **Profile Screen**: Finalize UI for the user profile placeholder block.
+

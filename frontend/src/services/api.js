@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// IMPORTANT: For Android Emulator, use 10.0.2.2. For iOS, use localhost. 
-// For physical devices, use your computer's IP address.
-const API_URL = 'http://10.0.2.2:5000/api';
+// For Expo Go on physical device, use your local IP: 192.168.8.163
+const API_URL = 'http://192.168.8.163:5000/api';
+
 
 const api = axios.create({
   baseURL: API_URL,

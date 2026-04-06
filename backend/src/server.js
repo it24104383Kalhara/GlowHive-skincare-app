@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 // Connect to MongoDB
 connectDB();
@@ -20,6 +21,8 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

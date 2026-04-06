@@ -1,10 +1,21 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+  },
   title: {
     type: String,
     required: [true, 'Product title is required'],
     trim: true,
+  },
+  category: {
+    type: String,
+    required: [true, 'Category is required'],
+    enum: ['SERUMS', 'OILS', 'CLEANSERS', 'BALMS', 'MISTS', 'NONE'],
+    default: 'NONE'
   },
   price: {
     type: Number,
@@ -23,7 +34,7 @@ const productSchema = new mongoose.Schema({
   }],
   skinTypeTags: [{
     type: String,
-    enum: ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal', 'All'],
+    enum: ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal', 'Mature', 'All'],
     default: ['All']
   }],
   imageUrl: {
@@ -31,7 +42,8 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Product image URL is required']
   }
 }, {
-  timestamps: true // Automatically adds createdAt and updatedAt fields
+  timestamps: true 
 });
 
 module.exports = mongoose.model('Product', productSchema);
+
