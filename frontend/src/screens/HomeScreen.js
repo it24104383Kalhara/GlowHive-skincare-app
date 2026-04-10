@@ -108,7 +108,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <FlatList
-          data={MOCK_TRENDING}
+          data={trendingProducts}
           renderItem={renderTrendingCard}
           keyExtractor={(item) => item._id}
           horizontal
@@ -126,7 +126,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         {/* Essentials List */}
-        {MOCK_ESSENTIALS.map((item) => (
+        {essentials.map((item) => (
           <TouchableOpacity
             key={item._id}
             style={styles.essentialCard}

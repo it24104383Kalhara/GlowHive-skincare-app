@@ -21,9 +21,23 @@ const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { register } = useContext(AuthContext);
+
+  const handlePasswordBlur = () => {
+    if (password.length > 0 && password.length < 6) {
+      setPasswordError('Password must be at least 6 characters.');
+    }
+  };
+
+  const handlePasswordChange = (text) => {
+    setPassword(text);
+    if (passwordError && text.length >= 6) {
+      setPasswordError('');
+    }
+  };
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -93,9 +107,11 @@ const RegisterScreen = ({ navigation }) => {
             <GHInput
               label="Password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={handlePasswordChange}
+              onBlur={handlePasswordBlur}
               placeholder="••••••••"
               secureTextEntry
+              error={passwordError}
             />
             <GHInput
               label="Confirm Password"

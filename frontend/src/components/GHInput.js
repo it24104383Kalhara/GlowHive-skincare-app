@@ -18,6 +18,8 @@ const GHInput = ({
   keyboardType,
   autoCapitalize = 'none',
   style,
+  error,
+  onBlur,
 }) => {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const isPassword = secureTextEntry;
@@ -34,7 +36,7 @@ const GHInput = ({
           )}
         </View>
       )}
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, error && styles.inputError]}>
         <TextInput
           style={styles.input}
           value={value}
@@ -44,6 +46,7 @@ const GHInput = ({
           secureTextEntry={isPassword && !isPasswordVisible}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          onBlur={onBlur}
         />
         {isPassword && (
           <TouchableOpacity
@@ -58,6 +61,7 @@ const GHInput = ({
           </TouchableOpacity>
         )}
       </View>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };
@@ -93,6 +97,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.base,
     height: 54,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     ...Shadow.sm,
   },
   input: {
@@ -102,6 +108,15 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: Spacing.sm,
+  },
+  inputError: {
+    borderColor: '#C0392B',
+  },
+  errorText: {
+    color: '#C0392B',
+    fontSize: Typography.xs,
+    marginTop: Spacing.xs,
+    marginLeft: Spacing.xs,
   },
 });
 
