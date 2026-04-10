@@ -6,6 +6,7 @@ const API_URL = 'http://192.168.8.163:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 5000, // 5 seconds timeout to prevent infinite loading
   headers: {
     'Content-Type': 'application/json',
   },
