@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.setItem('user', JSON.stringify(data));
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message = error.response?.data?.message || (error.message === 'Network Error' || error.code === 'ECONNABORTED' ? 'Network Error: Cannot connect to server.' : 'Login failed');
       return { success: false, message };
     }
   };
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.setItem('user', JSON.stringify(data));
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
+      const message = error.response?.data?.message || (error.message === 'Network Error' || error.code === 'ECONNABORTED' ? 'Network Error: Cannot connect to server.' : 'Registration failed');
       return { success: false, message };
     }
   };
