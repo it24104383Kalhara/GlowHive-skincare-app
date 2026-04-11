@@ -7,6 +7,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasSessionImagePermission, setHasSessionImagePermission] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in on app start
@@ -29,6 +30,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await authService.login(email, password);
       setUser(data);
+      setHasSessionImagePermission(false);
       await AsyncStorage.setItem('user', JSON.stringify(data));
       return { success: true };
     } catch (error) {
@@ -41,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await authService.register(name, email, password);
       setUser(data);
+      setHasSessionImagePermission(false);
       await AsyncStorage.setItem('user', JSON.stringify(data));
       return { success: true };
     } catch (error) {
@@ -52,6 +55,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setUser(null);
+      setHasSessionImagePermission(false);
       await AsyncStorage.removeItem('user');
     } catch (error) {
       console.error('Failed to logout', error);
@@ -59,7 +63,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user, loading, login, register, logout,
+      hasSessionImagePermission, setHasSessionImagePermission
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,14 @@ import {
   TextInput,
   Switch,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import GHButton from '../components/GHButton';
 import SkinTypeTag from '../components/SkinTypeTag';
+import * as ImagePicker from 'expo-image-picker';
+import { AuthContext } from '../contexts/AuthContext';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
 const SKIN_TYPES = ['Oily', 'Dry', 'Sensitive', 'Combination', 'Mature'];
@@ -26,7 +29,55 @@ const AddProductScreen = ({ navigation }) => {
   const [selectedSkinTypes, setSelectedSkinTypes] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('SERUMS');
   const [visible, setVisible] = useState(true);
+  const [imageUri, setImageUri] = useState(null);
   const [saving, setSaving] = useState(false);
+  
+  const { hasSessionImagePermission, setHasSessionImagePermission } = useContext(AuthContext);
+
+  const pickImage = async () => {
+    if (!hasSessionImagePermission) {
+      Alert.alert(
+        'Media Access Request',
+        'GlowHive needs to access your photo library for this session to upload product imagery. Do you allow?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Allow', onPress: async () => {
+              setHasSessionImagePermission(true);
+              launchNativePicker();
+            }
+          }
+        ]
+      );
+    } else {
+      launchNativePicker();
+    }
+  };
+
+  const launchNativePicker = async () => {
+    // Request permission first
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert(
+        'Permission Denied',
+        'Device access permission is required to upload product imagery. Please enable it in your device settings to continue.'
+      );
+      return;
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
 
   const toggleSkinType = (tag) => {
     setSelectedSkinTypes(prev =>
@@ -149,12 +200,22 @@ const AddProductScreen = ({ navigation }) => {
         {/* Upload image card */}
         <View style={styles.card}>
           <Text style={styles.fieldLabel}>PRODUCT IMAGERY</Text>
-          <TouchableOpacity style={styles.uploadBox} activeOpacity={0.8}>
-            <Ionicons name="image-outline" size={40} color={Colors.secondary} />
-            <Text style={styles.uploadTitle}>Upload Editorial Shot</Text>
-            <Text style={styles.uploadHint}>
-              DRAG & DROP HIGH-RESOLUTION JPG OR PNG{'\n'}RECOMMENDED 1080×1080PX
-            </Text>
+          <TouchableOpacity style={styles.uploadBox} activeOpacity={0.8} onPress={pickImage}>
+            {imageUri ? (
+              <Image 
+                source={{ uri: imageUri }} 
+                style={{ width: '100%', height: 200, borderRadius: Radius.lg }} 
+                resizeMode="cover" 
+              />
+            ) : (
+              <>
+                <Ionicons name="image-outline" size={40} color={Colors.secondary} />
+                <Text style={styles.uploadTitle}>Upload Editorial Shot</Text>
+                <Text style={styles.uploadHint}>
+                  TAP TO BROWSE HIGH-RESOLUTION JPG OR PNG{'\n'}RECOMMENDED 1080×1080PX
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
 
           {/* Tip */}
