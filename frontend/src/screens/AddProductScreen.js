@@ -146,22 +146,6 @@ const AddProductScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Action Buttons */}
-        <View style={styles.actionRow}>
-          <GHButton
-            title="Save Product"
-            onPress={handleSave}
-            loading={saving}
-            style={styles.saveBtn}
-          />
-          <GHButton
-            title="Cancel"
-            variant="outline"
-            onPress={() => navigation.goBack()}
-            style={styles.cancelBtn}
-          />
-        </View>
-
         {/* Upload image card */}
         <View style={styles.card}>
           <Text style={styles.fieldLabel}>PRODUCT IMAGERY</Text>
@@ -181,6 +165,23 @@ const AddProductScreen = ({ navigation }) => {
             </Text>
           </View>
         </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <GHButton
+            title="Save Product"
+            onPress={handleSave}
+            loading={saving}
+            style={styles.saveBtn}
+          />
+          <GHButton
+            title="Cancel"
+            variant="outline"
+            onPress={() => navigation.goBack()}
+            style={styles.cancelBtn}
+          />
+        </View>
+
 
         {/* Archive Status */}
         <View style={styles.card}>
