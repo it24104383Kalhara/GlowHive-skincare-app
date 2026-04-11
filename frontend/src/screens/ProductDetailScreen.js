@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import GHButton from '../components/GHButton';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
+import { BASE_SERVER_URL } from '../services/api';
 
 const MOCK_PRODUCT = {
   _id: '1',
@@ -98,24 +100,34 @@ const ProductDetailScreen = ({ route, navigation }) => {
         {/* Image area */}
         <View style={styles.imageArea}>
           <View style={styles.mainImageBox}>
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="flask-outline" size={56} color={Colors.primary} />
+            {product.imageUrl ? (
+              <Image 
+                source={{ uri: product.imageUrl.startsWith('http') ? product.imageUrl : `${BASE_SERVER_URL}${product.imageUrl}` }}
+                style={{ width: '100%', height: '100%', borderRadius: Radius.xl }}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Ionicons name="flask-outline" size={56} color={Colors.primary} />
+              </View>
+            )}
+          </View>
+          {/* Thumbnail row - hidden if no dynamic images for now */}
+          {!product.imageUrl && (
+            <View style={styles.thumbRow}>
+              {[0, 1].map(i => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => setSelectedImage(i)}
+                  style={[styles.thumb, selectedImage === i && styles.thumbActive]}
+                >
+                  <View style={styles.thumbPlaceholder}>
+                    <Text style={styles.thumbNum}>{i + 1}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
             </View>
-          </View>
-          {/* Thumbnail row */}
-          <View style={styles.thumbRow}>
-            {[0, 1].map(i => (
-              <TouchableOpacity
-                key={i}
-                onPress={() => setSelectedImage(i)}
-                style={[styles.thumb, selectedImage === i && styles.thumbActive]}
-              >
-                <View style={styles.thumbPlaceholder}>
-                  <Text style={styles.thumbNum}>{i + 1}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
+          )}
         </View>
 
         <View style={styles.contentPad}>

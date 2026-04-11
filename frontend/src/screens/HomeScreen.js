@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,8 +10,10 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
+import { BASE_SERVER_URL } from '../services/api';
 
 import productService from '../services/productService';
 
@@ -26,9 +28,13 @@ const HomeScreen = ({ navigation }) => {
     if (hour < 12) setGreeting('Good Morning');
     else if (hour < 17) setGreeting('Good Afternoon');
     else setGreeting('Good Evening');
-
-    fetchProducts();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+    }, [])
+  );
 
   const fetchProducts = async () => {
     try {
@@ -51,9 +57,17 @@ const HomeScreen = ({ navigation }) => {
       onPress={() => navigation.navigate('ProductDetail', { productId: item._id })}
     >
       <View style={styles.trendingImageBox}>
-        <View style={styles.trendingImagePlaceholder}>
-          <Ionicons name="leaf-outline" size={32} color={Colors.white} />
-        </View>
+        {item.imageUrl ? (
+          <Image 
+            source={{ uri: item.imageUrl.startsWith('http') ? item.imageUrl : `${BASE_SERVER_URL}${item.imageUrl}` }}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.trendingImagePlaceholder}>
+            <Ionicons name="leaf-outline" size={32} color={Colors.white} />
+          </View>
+        )}
       </View>
       <View style={styles.trendingInfo}>
         <Text style={styles.trendingCategory}>{item.category}</Text>
@@ -134,9 +148,17 @@ const HomeScreen = ({ navigation }) => {
             activeOpacity={0.9}
           >
             <View style={styles.essentialImageBox}>
-              <View style={styles.essentialImagePlaceholder}>
-                <Ionicons name="flower-outline" size={28} color={Colors.primary} />
-              </View>
+              {item.imageUrl ? (
+                <Image 
+                  source={{ uri: item.imageUrl.startsWith('http') ? item.imageUrl : `${BASE_SERVER_URL}${item.imageUrl}` }}
+                  style={{ width: '100%', height: '100%' }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.essentialImagePlaceholder}>
+                  <Ionicons name="flower-outline" size={28} color={Colors.primary} />
+                </View>
+              )}
             </View>
             <View style={styles.essentialInfo}>
               <Text style={styles.essentialTitle}>{item.title}</Text>

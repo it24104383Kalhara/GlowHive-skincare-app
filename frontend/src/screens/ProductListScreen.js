@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,82 +9,40 @@ import {
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '../components/ProductCard';
+import productService from '../services/productService';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
 const FILTERS = ['All', 'Serums', 'Oils', 'Cleansers', 'Balms', 'Mists'];
 
-const MOCK_PRODUCTS = [
-  {
-    _id: '1',
-    title: 'Verdant Dew Serum',
-    price: 299,
-    stock: 12,
-    category: 'SERUM COLLECTION',
-    imageUrl: null,
-    ingredients: ['Hyaluronic Acid', 'Green Tea Extract'],
-    skinTypeTags: ['All'],
-  },
-  {
-    _id: '2',
-    title: 'Arctic Clay Cleanser',
-    price: 149,
-    stock: 0,
-    category: 'CLEANSER',
-    imageUrl: null,
-    ingredients: ['Kaolin Clay', 'Peppermint'],
-    skinTypeTags: ['Oily', 'Combination'],
-  },
-  {
-    _id: '3',
-    title: 'Velvet Rose Balm',
-    price: 112,
-    stock: 3,
-    category: 'BALM',
-    imageUrl: null,
-    ingredients: ['Rosehip', 'Jojoba'],
-    skinTypeTags: ['Dry', 'Sensitive'],
-  },
-  {
-    _id: '4',
-    title: 'Lunar Night Oil',
-    price: 189,
-    stock: 8,
-    category: 'FACIAL OIL',
-    imageUrl: null,
-    ingredients: ['Marula', 'Bakuchiol'],
-    skinTypeTags: ['All'],
-  },
-  {
-    _id: '5',
-    title: 'Citrus Glow Mist',
-    price: 79,
-    stock: 20,
-    category: 'MIST',
-    imageUrl: null,
-    ingredients: ['Vitamin C', 'Aloe Vera'],
-    skinTypeTags: ['All'],
-  },
-  {
-    _id: '6',
-    title: 'Herbalism Balm',
-    price: 95,
-    stock: 5,
-    category: 'BALM',
-    imageUrl: null,
-    ingredients: ['Calendula', 'Chamomile'],
-    skinTypeTags: ['Sensitive'],
-  },
-];
-
 const ProductListScreen = ({ navigation }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+    }, [])
+  );
+
+  const fetchProducts = async () => {
+    try {
+      const data = await productService.getProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filtered = activeFilter === 'All'
-    ? MOCK_PRODUCTS
-    : MOCK_PRODUCTS.filter(p =>
+    ? products
+    : products.filter(p =>
         p.category.toUpperCase().includes(activeFilter.toUpperCase().slice(0, -1))
       );
 

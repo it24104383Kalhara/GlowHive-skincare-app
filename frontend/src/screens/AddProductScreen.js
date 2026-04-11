@@ -16,6 +16,7 @@ import GHButton from '../components/GHButton';
 import SkinTypeTag from '../components/SkinTypeTag';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '../contexts/AuthContext';
+import productService from '../services/productService';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
 const SKIN_TYPES = ['Oily', 'Dry', 'Sensitive', 'Combination', 'Mature'];
@@ -24,7 +25,7 @@ const CATEGORIES = ['SERUMS', 'OILS', 'CLEANSERS', 'BALMS', 'MISTS'];
 const AddProductScreen = ({ navigation }) => {
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
-  const [stock, setStock] = useState('100');
+  const [stock, setStock] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [selectedSkinTypes, setSelectedSkinTypes] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('SERUMS');
@@ -32,7 +33,7 @@ const AddProductScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
   const [saving, setSaving] = useState(false);
   
-  const { hasSessionImagePermission, setHasSessionImagePermission } = useContext(AuthContext);
+  const { user, hasSessionImagePermission, setHasSessionImagePermission } = useContext(AuthContext);
 
   const pickImage = async () => {
     if (!hasSessionImagePermission) {
@@ -85,19 +86,49 @@ const AddProductScreen = ({ navigation }) => {
     );
   };
 
-  const handleSave = () => {
-    if (!title || !price) {
-      Alert.alert('Missing fields', 'Please enter product title and price.');
+  const handleSave = async () => {
+    if (!title || !price || !imageUri) {
+      Alert.alert('Missing fields', 'Please enter product title, price, and select an image.');
       return;
     }
     setSaving(true);
-    // TODO: Wire up to Create Product API
-    setTimeout(() => {
-      setSaving(false);
-      Alert.alert('Product Saved', `"${title}" has been added to the archive.`, [
+    
+    try {
+      // 1. Upload the image file first to receive the hosted URL
+      const uploadedImageUrl = await productService.uploadImage(imageUri);
+
+      // 2. Format product payload
+      const productData = {
+        title,
+        price: Number(price),
+        stock: Number(stock),
+        ingredients,
+        skinTypeTags: selectedSkinTypes.length > 0 ? selectedSkinTypes : ['All'],
+        category: selectedCategory,
+        imageUrl: uploadedImageUrl,
+      };
+
+      // 3. Save directly to the MongoDB backend
+      await productService.createProduct(productData, user.token);
+
+      // 4. Clear form locally ONLY after successful save
+      setTitle("");
+      setPrice("");
+      setStock("");
+      setIngredients("");
+      setSelectedSkinTypes([]);
+      setSelectedCategory("SERUMS");
+      setImageUri(null);
+
+      Alert.alert('Product Saved', `"${title}" has been added to the database with its image.`, [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
-    }, 1200);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Could not save the product. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

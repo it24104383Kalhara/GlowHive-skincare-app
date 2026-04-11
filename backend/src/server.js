@@ -4,6 +4,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+const path = require('path');
 
 // Connect to MongoDB
 connectDB();
@@ -22,6 +24,11 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Make uploads folder static so images are publicly accessible
+const dirname = path.resolve();
+app.use('/uploads', express.static(path.join(dirname, 'uploads')));
 
 
 // Error handling middleware

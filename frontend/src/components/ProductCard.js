@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
+import { BASE_SERVER_URL } from '../services/api';
 
 /**
  * Product Card Component
@@ -8,11 +9,15 @@ import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
  * full-height product image, price tag, name, and ADD TO BAG button
  */
 const ProductCard = ({ product, onPress, onAddToCart }) => {
+  const imageUrl = product.imageUrl 
+    ? (product.imageUrl.startsWith('http') ? product.imageUrl : `${BASE_SERVER_URL}${product.imageUrl}`)
+    : 'https://via.placeholder.com/300x300/F2F0ED/2D4B43?text=GlowHive';
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: product.imageUrl || 'https://via.placeholder.com/300x300/F2F0ED/2D4B43?text=GlowHive' }}
+          source={{ uri: imageUrl }}
           style={styles.image}
           resizeMode="cover"
         />
