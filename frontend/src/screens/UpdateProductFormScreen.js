@@ -98,7 +98,7 @@ const UpdateProductFormScreen = ({ route, navigation }) => {
     try {
       let uploadedImageUrl = product.imageUrl;
       if (imageChanged && imageUri) {
-        uploadedImageUrl = await productService.uploadImage(imageUri);
+        uploadedImageUrl = await productService.uploadImage(imageUri, title);
       }
 
       const productData = {

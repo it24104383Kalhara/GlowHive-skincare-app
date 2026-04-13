@@ -97,6 +97,20 @@ const updateProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
+    // If image URL is changing, delete the old image file
+    if (imageUrl && imageUrl !== product.imageUrl) {
+      if (product.imageUrl && product.imageUrl.startsWith('/uploads/')) {
+        const oldImagePath = path.join(__dirname, '../..', product.imageUrl);
+        if (fs.existsSync(oldImagePath)) {
+          try {
+            fs.unlinkSync(oldImagePath);
+          } catch (error) {
+            console.error(`Failed to delete old image at ${oldImagePath}:`, error);
+          }
+        }
+      }
+    }
+
     product.title = title || product.title;
     product.price = price || product.price;
     product.stock = stock || product.stock;

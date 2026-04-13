@@ -37,13 +37,21 @@ const deleteProduct = async (id, token) => {
   return response.data;
 };
 
-const uploadImage = async (imageUri) => {
+const uploadImage = async (imageUri, productName = '') => {
   const formData = new FormData();
+  
+  // Sanitize product name to be safe for file system (remove spaces/special chars)
+  const sanitizedName = productName 
+    ? productName.toLowerCase().replace(/[^a-z0-9]/g, '-') 
+    : 'product';
+
+  const ext = imageUri.split('.').pop() || 'jpg';
+  
   // React Native requires this exact format for files
   formData.append('image', {
     uri: imageUri,
-    type: 'image/jpeg',
-    name: `product-${Date.now()}.jpg`,
+    type: `image/${ext === 'png' ? 'png' : 'jpeg'}`,
+    name: `${sanitizedName}-${Date.now()}.${ext}`,
   });
 
   const response = await api.post('/upload', formData, {

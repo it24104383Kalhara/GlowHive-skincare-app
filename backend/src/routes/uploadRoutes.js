@@ -8,7 +8,9 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename(req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+    // The frontend formats the name as: sanitized-product-name-123456789.jpg
+    // We can safely trust file.originalname since we generate it in productService.js
+    cb(null, file.originalname);
   },
 });
 

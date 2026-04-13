@@ -97,7 +97,7 @@ const AddProductScreen = ({ navigation }) => {
     
     try {
       // 1. Upload the image file first to receive the hosted URL
-      const uploadedImageUrl = await productService.uploadImage(imageUri);
+      const uploadedImageUrl = await productService.uploadImage(imageUri, title);
 
       // 2. Format product payload
       const productData = {
