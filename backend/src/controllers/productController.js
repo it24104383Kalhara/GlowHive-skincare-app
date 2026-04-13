@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Product = require('../models/Product');
+const fs = require('fs');
+const path = require('path');
 
 // @desc    Fetch all products
 // @route   GET /api/products
@@ -30,6 +32,17 @@ const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
+    if (product.imageUrl && product.imageUrl.startsWith('/uploads/')) {
+      const imagePath = path.join(__dirname, '../..', product.imageUrl);
+      if (fs.existsSync(imagePath)) {
+        try {
+          fs.unlinkSync(imagePath);
+        } catch (error) {
+          console.error(`Failed to delete image at ${imagePath}:`, error);
+        }
+      }
+    }
+
     await product.deleteOne();
     res.json({ message: 'Product removed' });
   } else {

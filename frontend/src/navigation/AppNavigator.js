@@ -12,6 +12,7 @@ import ProductDetailScreen from '../screens/ProductDetailScreen';
 import AddProductScreen from '../screens/AddProductScreen';
 import UpdateProductListScreen from '../screens/UpdateProductListScreen';
 import UpdateProductFormScreen from '../screens/UpdateProductFormScreen';
+import DeleteProductListScreen from '../screens/DeleteProductListScreen';
 import { Colors, Typography } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 
@@ -111,6 +112,7 @@ const AppNavigator = () => {
           <Stack.Screen name="AddProduct" component={AddProductScreen} />
           <Stack.Screen name="UpdateProductList" component={UpdateProductListScreen} />
           <Stack.Screen name="UpdateProductForm" component={UpdateProductFormScreen} />
+          <Stack.Screen name="DeleteProductList" component={DeleteProductListScreen} />
         </>
       ) : (
         <>

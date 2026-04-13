@@ -28,6 +28,15 @@ const updateProduct = async (id, productData, token) => {
   return response.data;
 };
 
+const deleteProduct = async (id, token) => {
+  const response = await api.delete(`/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
 const uploadImage = async (imageUri) => {
   const formData = new FormData();
   // React Native requires this exact format for files
@@ -50,6 +59,7 @@ const productService = {
   getProductById,
   createProduct,
   updateProduct,
+  deleteProduct,
   uploadImage,
 };
 
