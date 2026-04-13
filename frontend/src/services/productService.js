@@ -19,6 +19,15 @@ const createProduct = async (productData, token) => {
   return response.data;
 };
 
+const updateProduct = async (id, productData, token) => {
+  const response = await api.put(`/products/${id}`, productData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
 const uploadImage = async (imageUri) => {
   const formData = new FormData();
   // React Native requires this exact format for files
@@ -40,6 +49,7 @@ const productService = {
   getProducts,
   getProductById,
   createProduct,
+  updateProduct,
   uploadImage,
 };
 

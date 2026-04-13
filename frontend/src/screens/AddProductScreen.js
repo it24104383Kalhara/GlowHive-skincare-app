@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import GHButton from '../components/GHButton';
 import SkinTypeTag from '../components/SkinTypeTag';
+import SideMenu from '../components/SideMenu';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '../contexts/AuthContext';
 import productService from '../services/productService';
@@ -32,6 +33,7 @@ const AddProductScreen = ({ navigation }) => {
   const [visible, setVisible] = useState(true);
   const [imageUri, setImageUri] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
   
   const { user, hasSessionImagePermission, setHasSessionImagePermission } = useContext(AuthContext);
 
@@ -135,7 +137,7 @@ const AddProductScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => setMenuVisible(true)}>
           <Ionicons name="menu-outline" size={26} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
@@ -317,6 +319,12 @@ const AddProductScreen = ({ navigation }) => {
 
         <View style={{ height: Spacing.xxxl }} />
       </ScrollView>
+
+      <SideMenu 
+        visible={menuVisible} 
+        onClose={() => setMenuVisible(false)} 
+        navigation={navigation} 
+      />
     </SafeAreaView>
   );
 };

@@ -10,6 +10,8 @@ import HomeScreen from '../screens/HomeScreen';
 import ProductListScreen from '../screens/ProductListScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import AddProductScreen from '../screens/AddProductScreen';
+import UpdateProductListScreen from '../screens/UpdateProductListScreen';
+import UpdateProductFormScreen from '../screens/UpdateProductFormScreen';
 import { Colors, Typography } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 
@@ -97,15 +99,19 @@ const AppNavigator = () => {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator 
+      screenOptions={{ 
+        headerShown: false,
+        animation: 'slide_from_right',
+        gestureEnabled: true 
+      }}
+    >
       {user ? (
         <>
-          <Stack.Screen name="MainTabs" component={MainTabs} />
-          <Stack.Screen
-            name="ProductDetail"
-            component={ProductDetailScreen}
-            options={{ animation: 'slide_from_right' }}
-          />
+          <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'fade' }} />
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          <Stack.Screen name="UpdateProductList" component={UpdateProductListScreen} />
+          <Stack.Screen name="UpdateProductForm" component={UpdateProductFormScreen} />
         </>
       ) : (
         <>

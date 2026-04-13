@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '../components/ProductCard';
+import SideMenu from '../components/SideMenu';
 import productService from '../services/productService';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
@@ -22,6 +23,7 @@ const ProductListScreen = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -56,7 +58,7 @@ const ProductListScreen = ({ navigation }) => {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => setMenuVisible(true)}>
           <Ionicons name="menu-outline" size={26} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
@@ -113,6 +115,12 @@ const ProductListScreen = ({ navigation }) => {
         )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+      />
+
+      <SideMenu 
+        visible={menuVisible} 
+        onClose={() => setMenuVisible(false)} 
+        navigation={navigation} 
       />
     </SafeAreaView>
   );

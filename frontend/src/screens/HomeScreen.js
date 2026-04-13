@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import SideMenu from '../components/SideMenu';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
 
@@ -22,6 +23,7 @@ const HomeScreen = ({ navigation }) => {
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [essentials, setEssentials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -86,7 +88,7 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setMenuVisible(true)}>
           <Ionicons name="menu-outline" size={26} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
@@ -187,6 +189,12 @@ const HomeScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.floatingCart} onPress={() => navigation.navigate('Cart')}>
         <Ionicons name="bag-outline" size={22} color={Colors.white} />
       </TouchableOpacity>
+
+      <SideMenu 
+        visible={menuVisible} 
+        onClose={() => setMenuVisible(false)} 
+        navigation={navigation} 
+      />
     </SafeAreaView>
   );
 };
