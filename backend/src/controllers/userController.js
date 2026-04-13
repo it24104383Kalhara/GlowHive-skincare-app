@@ -41,6 +41,18 @@ const registerUser = asyncHandler(async (req, res) => {
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  // Hardcoded Admin Login
+  if (email === 'admin@gmail.com' && password === 'admin123') {
+    const adminDummyId = '000000000000000000000000';
+    return res.json({
+      _id: adminDummyId,
+      name: 'System Admin',
+      email: 'admin@gmail.com',
+      isAdmin: true,
+      token: generateToken(adminDummyId),
+    });
+  }
+
   const user = await User.findOne({ email }).select('+password');
 
   if (user && (await user.matchPassword(password))) {
