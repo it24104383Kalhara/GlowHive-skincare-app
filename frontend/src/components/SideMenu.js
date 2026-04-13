@@ -41,6 +41,16 @@ const SideMenu = ({ visible, onClose, navigation }) => {
             <Text style={styles.pageTitle}>Manage{'\n'}Products</Text>
           </View>
           
+          <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => { onClose(); navigation.navigate('AddProduct'); }}>
+            <View style={[styles.imageBox, { backgroundColor: '#E8EAF6' }]}>
+              <Ionicons name="add-outline" size={32} color="#3F51B5" />
+            </View>
+            <View style={styles.info}>
+              <Text style={styles.title} numberOfLines={1}>Add Product</Text>
+            </View>
+             <Ionicons name="chevron-forward" size={20} color={Colors.secondary} />
+          </TouchableOpacity>
+          
           <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => { onClose(); navigation.navigate('UpdateProductList'); }}>
             <View style={[styles.imageBox, { backgroundColor: '#E8F5E9' }]}>
               <Ionicons name="cart-outline" size={28} color="#4CAF50" />

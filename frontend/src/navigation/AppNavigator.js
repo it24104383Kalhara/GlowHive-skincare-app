@@ -47,7 +47,6 @@ const MainTabs = () => {
           const icons = {
             Home: focused ? 'home' : 'home-outline',
             Catalogue: focused ? 'grid' : 'grid-outline',
-            AddProduct: focused ? 'add-circle' : 'add-circle-outline',
             Profile: focused ? 'person' : 'person-outline',
           };
           return <Ionicons name={icons[route.name] || 'ellipse-outline'} size={22} color={color} />;
@@ -56,7 +55,6 @@ const MainTabs = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'HOME' }} />
       <Tab.Screen name="Catalogue" component={ProductListScreen} options={{ tabBarLabel: 'ARCHIVE' }} />
-      <Tab.Screen name="AddProduct" component={AddProductScreen} options={{ tabBarLabel: 'ADD' }} />
       <Tab.Screen name="Profile" component={ProfilePlaceholder} options={{ tabBarLabel: 'PROFILE' }} />
     </Tab.Navigator>
   );
@@ -110,6 +108,7 @@ const AppNavigator = () => {
         <>
           <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'fade' }} />
           <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          <Stack.Screen name="AddProduct" component={AddProductScreen} />
           <Stack.Screen name="UpdateProductList" component={UpdateProductListScreen} />
           <Stack.Screen name="UpdateProductForm" component={UpdateProductFormScreen} />
         </>

@@ -137,8 +137,8 @@ const AddProductScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setMenuVisible(true)}>
-          <Ionicons name="menu-outline" size={26} color={Colors.black} />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={26} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
         <TouchableOpacity>
@@ -319,12 +319,6 @@ const AddProductScreen = ({ navigation }) => {
 
         <View style={{ height: Spacing.xxxl }} />
       </ScrollView>
-
-      <SideMenu 
-        visible={menuVisible} 
-        onClose={() => setMenuVisible(false)} 
-        navigation={navigation} 
-      />
     </SafeAreaView>
   );
 };
