@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import SideMenu from '../components/SideMenu';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
 
+import { AuthContext } from '../contexts/AuthContext';
 import productService from '../services/productService';
 
 const HomeScreen = ({ navigation }) => {
@@ -24,6 +25,8 @@ const HomeScreen = ({ navigation }) => {
   const [essentials, setEssentials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
+
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -88,9 +91,13 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setMenuVisible(true)}>
-          <Ionicons name="menu-outline" size={26} color={Colors.black} />
-        </TouchableOpacity>
+        {user?.isAdmin ? (
+          <TouchableOpacity onPress={() => setMenuVisible(true)}>
+            <Ionicons name="menu-outline" size={26} color={Colors.black} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 26 }} />
+        )}
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <View style={styles.avatarCircle}>

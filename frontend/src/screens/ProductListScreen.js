@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '../components/ProductCard';
 import SideMenu from '../components/SideMenu';
 import productService from '../services/productService';
+import { AuthContext } from '../contexts/AuthContext';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
 const FILTERS = ['All', 'Serums', 'Oils', 'Cleansers', 'Balms', 'Mists'];
@@ -24,6 +25,8 @@ const ProductListScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
   const [menuVisible, setMenuVisible] = useState(false);
+
+  const { user } = useContext(AuthContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,9 +61,13 @@ const ProductListScreen = ({ navigation }) => {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setMenuVisible(true)}>
-          <Ionicons name="menu-outline" size={26} color={Colors.black} />
-        </TouchableOpacity>
+        {user?.isAdmin ? (
+          <TouchableOpacity onPress={() => setMenuVisible(true)}>
+            <Ionicons name="menu-outline" size={26} color={Colors.black} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 26 }} />
+        )}
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
         <TouchableOpacity>
           <View style={styles.avatarCircle}>
