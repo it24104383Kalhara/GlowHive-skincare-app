@@ -8,6 +8,7 @@ import {
   FlatList,
   StatusBar,
   Image,
+  ImageBackground,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -120,20 +121,26 @@ const HomeScreen = ({ navigation }) => {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
-        {/* Hero Banner — "The Botanical Archive" */}
+        {/* Hero Banner — "The Botanical Sanctuary" */}
         <TouchableOpacity style={styles.heroBanner} activeOpacity={0.95}>
-          <View style={styles.heroBannerBg}>
-            <View style={styles.heroBannerContent}>
-              <Text style={styles.heroBannerEyebrow}>ARCHIVE SERIES 001</Text>
-              <Text style={styles.heroBannerTitle}>The Botanical{'\n'}Archive</Text>
-              <Text style={styles.heroBannerBody}>
-                Preserving nature's finest actives for maximum biological precision of the skin.
-              </Text>
-              <TouchableOpacity style={styles.heroCTA}>
-                <Text style={styles.heroCTAText}>EXPLORE THE ARCHIVE</Text>
-              </TouchableOpacity>
+          <ImageBackground 
+            source={require('../assets/hero_botanical.png')} 
+            style={styles.heroBannerBg}
+            resizeMode="cover"
+          >
+            <View style={styles.heroOverlay}>
+              <View style={styles.heroBannerContent}>
+                <Text style={styles.heroBannerEyebrow}>LIMITED ARCHIVE SERIES</Text>
+                <Text style={styles.heroBannerTitle}>The Botanical{'\n'}Sanctuary</Text>
+                <Text style={styles.heroBannerBody}>
+                  Experience the equilibrium of advanced clinical science and raw botanical potency.
+                </Text>
+                <TouchableOpacity style={styles.heroCTA}>
+                  <Text style={styles.heroCTAText}>DISCOVER NOW</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          </ImageBackground>
         </TouchableOpacity>
 
         {/* Trending Now */}
@@ -241,8 +248,13 @@ const styles = StyleSheet.create({
 
   // Hero Banner
   heroBanner: { marginHorizontal: Spacing.base, marginBottom: Spacing.xl, borderRadius: Radius.xl, overflow: 'hidden' },
-  heroBannerBg: { backgroundColor: Colors.primary, minHeight: 240, justifyContent: 'flex-end' },
-  heroBannerContent: { padding: Spacing.xl },
+  heroBannerBg: { minHeight: 400, justifyContent: 'flex-end' },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(45, 75, 67, 0.45)', // Botanical green tint with transparency
+    justifyContent: 'flex-end',
+  },
+  heroBannerContent: { padding: Spacing.xl, paddingBottom: Spacing.xxl },
   heroBannerEyebrow: {
     fontSize: Typography.xs,
     letterSpacing: Typography.widest,
