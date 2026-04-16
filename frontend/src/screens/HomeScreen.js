@@ -122,7 +122,7 @@ const HomeScreen = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
         {/* Hero Banner — "The Botanical Sanctuary" */}
-        <TouchableOpacity style={styles.heroBanner} activeOpacity={0.95}>
+        <View style={styles.heroBanner}>
           <ImageBackground 
             source={require('../assets/hero_botanical.png')} 
             style={styles.heroBannerBg}
@@ -135,13 +135,17 @@ const HomeScreen = ({ navigation }) => {
                 <Text style={styles.heroBannerBody}>
                   Experience the equilibrium of advanced clinical science and raw botanical potency.
                 </Text>
-                <TouchableOpacity style={styles.heroCTA}>
+                <TouchableOpacity 
+                  style={styles.heroCTA} 
+                  activeOpacity={0.8}
+                  onPress={() => navigation.navigate('Catalogue')}
+                >
                   <Text style={styles.heroCTAText}>DISCOVER NOW</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </ImageBackground>
-        </TouchableOpacity>
+        </View>
 
         {/* Trending Now */}
         <View style={styles.sectionHeader}>
@@ -162,7 +166,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionEyebrow}>SUMMER SELECTION</Text>
           <Text style={styles.sectionTitleLarge}>Summer Essentials</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Catalogue')}>
             <Text style={styles.seeAll}>SEE ALL →</Text>
           </TouchableOpacity>
         </View>
