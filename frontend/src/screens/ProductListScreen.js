@@ -99,6 +99,8 @@ const ProductListScreen = ({ navigation }) => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filterRow}
         style={styles.filterScroll}
+        decelerationRate="fast"
+        snapToAlignment="start"
       >
         {FILTERS.map(f => (
           <TouchableOpacity
@@ -128,6 +130,7 @@ const ProductListScreen = ({ navigation }) => {
             onAddToCart={() => handleAddToCart(item)}
           />
         )}
+        style={styles.flatList}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
       />
@@ -188,19 +191,29 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     lineHeight: 20,
   },
-  filterScroll: { maxHeight: 48 },
+  filterScroll: { 
+    height: 60, 
+    flexGrow: 0,
+    flexShrink: 0,
+    marginVertical: Spacing.xs,
+    zIndex: 10,
+  },
   filterRow: {
     paddingHorizontal: Spacing.base,
-    paddingBottom: Spacing.sm,
+    paddingVertical: 4,
     gap: Spacing.sm,
+    flexDirection: 'row',
   },
   filterChip: {
-    borderRadius: Radius.pill,
+    borderRadius: 25,
     borderWidth: 1.5,
     borderColor: Colors.border,
     paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.xs + 2,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.white,
+    ...Shadow.sm,
   },
   filterChipActive: {
     backgroundColor: Colors.primary,
@@ -209,8 +222,9 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: Typography.xs,
     color: Colors.secondary,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontWeight: '700',
+    letterSpacing: Typography.wider,
+    textAlign: 'center',
   },
   filterTextActive: {
     color: Colors.white,
@@ -226,6 +240,9 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: Spacing.sm,
     paddingBottom: 32,
+  },
+  flatList: {
+    flex: 1,
   },
 });
 
