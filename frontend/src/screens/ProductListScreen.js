@@ -7,14 +7,17 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '../components/ProductCard';
 import SideMenu from '../components/SideMenu';
+import CartBadgeIcon from '../components/CartBadgeIcon';
 import productService from '../services/productService';
 import { AuthContext } from '../contexts/AuthContext';
+import { CartContext } from '../contexts/CartContext';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
 const FILTERS = ['All', 'Serums', 'Oils', 'Cleansers', 'Balms', 'Mists'];
@@ -27,6 +30,7 @@ const ProductListScreen = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const { user } = useContext(AuthContext);
+  const { addToCart } = useContext(CartContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -52,7 +56,8 @@ const ProductListScreen = ({ navigation }) => {
       );
 
   const handleAddToCart = (product) => {
-    setCart(prev => [...prev, product]);
+    addToCart(product);
+    Alert.alert('Archive Added', `${product.title} has been added to your shopping bag.`);
   };
 
   return (
@@ -69,11 +74,14 @@ const ProductListScreen = ({ navigation }) => {
           <View style={{ width: 26 }} />
         )}
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
-        <TouchableOpacity>
-          <View style={styles.avatarCircle}>
-            <Ionicons name="person-outline" size={18} color={Colors.primary} />
-          </View>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <CartBadgeIcon />
+          <TouchableOpacity style={{ marginLeft: Spacing.sm }}>
+            <View style={styles.avatarCircle}>
+              <Ionicons name="person-outline" size={18} color={Colors.primary} />
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Page title */}

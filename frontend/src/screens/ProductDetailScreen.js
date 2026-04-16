@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ import GHButton from '../components/GHButton';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
 import productService from '../services/productService';
+import { CartContext } from '../contexts/CartContext';
+import CartBadgeIcon from '../components/CartBadgeIcon';
 
 const MOCK_PRODUCT = {
   _id: '1',
@@ -75,6 +77,8 @@ const ProductDetailScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(!route?.params?.product);
   const [addingToCart, setAddingToCart] = useState(false);
 
+  const { addToCart } = useContext(CartContext);
+
   useEffect(() => {
     if (!route?.params?.product && route?.params?.productId) {
       loadProduct();
@@ -95,10 +99,11 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
   const handleAddToCart = () => {
     setAddingToCart(true);
+    addToCart(product);
     setTimeout(() => {
       setAddingToCart(false);
       Alert.alert('Added to Bag', `${product.title} has been added to your bag.`);
-    }, 800);
+    }, 500);
   };
 
   const avgRating = (MOCK_REVIEWS.reduce((s, r) => s + r.rating, 0) / MOCK_REVIEWS.length).toFixed(1);
@@ -111,9 +116,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
           <Ionicons name="chevron-back" size={22} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>GlowHive</Text>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Ionicons name="bag-outline" size={22} color={Colors.black} />
-        </TouchableOpacity>
+        <CartBadgeIcon />
       </View>
 
       {loading ? (

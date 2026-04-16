@@ -8,15 +8,18 @@ import {
   FlatList,
   StatusBar,
   Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import SideMenu from '../components/SideMenu';
+import CartBadgeIcon from '../components/CartBadgeIcon';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
 
 import { AuthContext } from '../contexts/AuthContext';
+import { CartContext } from '../contexts/CartContext';
 import productService from '../services/productService';
 
 const HomeScreen = ({ navigation }) => {
@@ -27,6 +30,7 @@ const HomeScreen = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const { user } = useContext(AuthContext);
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -54,6 +58,11 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    Alert.alert('Archive Added', `${product.title} has been added to your bag.`);
+  };
+
 
   const renderTrendingCard = ({ item }) => (
     <TouchableOpacity
@@ -79,7 +88,7 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.trendingTitle}>{item.title}</Text>
         <Text style={styles.trendingPrice}>${item.price.toFixed(2)}</Text>
       </View>
-      <TouchableOpacity style={styles.trendingAddBtn}>
+      <TouchableOpacity style={styles.trendingAddBtn} onPress={() => handleAddToCart(item)}>
         <Ionicons name="add" size={18} color={Colors.white} />
       </TouchableOpacity>
     </TouchableOpacity>
@@ -99,11 +108,14 @@ const HomeScreen = ({ navigation }) => {
           <View style={{ width: 26 }} />
         )}
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <View style={styles.avatarCircle}>
-            <Ionicons name="person-outline" size={18} color={Colors.primary} />
-          </View>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <CartBadgeIcon />
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginLeft: Spacing.sm }}>
+            <View style={styles.avatarCircle}>
+              <Ionicons name="person-outline" size={18} color={Colors.primary} />
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -176,7 +188,7 @@ const HomeScreen = ({ navigation }) => {
               ) : null}
               <Text style={styles.essentialPrice}>${item.price.toFixed(2)}</Text>
             </View>
-            <TouchableOpacity style={styles.essentialCartBtn}>
+            <TouchableOpacity style={styles.essentialCartBtn} onPress={() => handleAddToCart(item)}>
               <Ionicons name="bag-outline" size={18} color={Colors.primary} />
             </TouchableOpacity>
           </TouchableOpacity>
@@ -191,11 +203,6 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
       </ScrollView>
-
-      {/* Floating Cart Button */}
-      <TouchableOpacity style={styles.floatingCart} onPress={() => navigation.navigate('Cart')}>
-        <Ionicons name="bag-outline" size={22} color={Colors.white} />
-      </TouchableOpacity>
 
       <SideMenu 
         visible={menuVisible} 

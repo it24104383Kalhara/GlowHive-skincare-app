@@ -13,8 +13,10 @@ import AddProductScreen from '../screens/AddProductScreen';
 import UpdateProductListScreen from '../screens/UpdateProductListScreen';
 import UpdateProductFormScreen from '../screens/UpdateProductFormScreen';
 import DeleteProductListScreen from '../screens/DeleteProductListScreen';
+import CartScreen from '../screens/CartScreen';
 import { Colors, Typography } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
+import { CartContext } from '../contexts/CartContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -23,6 +25,8 @@ const Tab = createBottomTabNavigator();
 // Bottom Tab Navigator (Main App Shell)
 // ─────────────────────────────────────────────
 const MainTabs = () => {
+  const { cartCount } = useContext(CartContext);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -50,7 +54,17 @@ const MainTabs = () => {
             Catalogue: focused ? 'grid' : 'grid-outline',
             Profile: focused ? 'person' : 'person-outline',
           };
-          return <Ionicons name={icons[route.name] || 'ellipse-outline'} size={22} color={color} />;
+          
+          return (
+            <View>
+              <Ionicons name={icons[route.name] || 'ellipse-outline'} size={22} color={color} />
+              {route.name === 'Catalogue' && cartCount > 0 && (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>{cartCount}</Text>
+                </View>
+              )}
+            </View>
+          );
         },
       })}
     >
@@ -113,6 +127,7 @@ const AppNavigator = () => {
           <Stack.Screen name="UpdateProductList" component={UpdateProductListScreen} />
           <Stack.Screen name="UpdateProductForm" component={UpdateProductFormScreen} />
           <Stack.Screen name="DeleteProductList" component={DeleteProductListScreen} />
+          <Stack.Screen name="Cart" component={CartScreen} />
         </>
       ) : (
         <>
@@ -160,6 +175,24 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     fontWeight: '700',
     color: Colors.primary,
+  },
+  tabBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -10,
+    backgroundColor: Colors.primary,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.white,
+  },
+  tabBadgeText: {
+    color: Colors.white,
+    fontSize: 8,
+    fontWeight: '800',
   },
 });
 
