@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,14 @@ import {
   FlatList,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import GHButton from '../components/GHButton';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
+import productService from '../services/productService';
 
 const MOCK_PRODUCT = {
   _id: '1',
@@ -69,9 +71,27 @@ const StarRating = ({ rating, size = 14 }) => {
 };
 
 const ProductDetailScreen = ({ route, navigation }) => {
-  const product = route?.params?.product || MOCK_PRODUCT;
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [product, setProduct] = useState(route?.params?.product || MOCK_PRODUCT);
+  const [loading, setLoading] = useState(!route?.params?.product);
   const [addingToCart, setAddingToCart] = useState(false);
+
+  useEffect(() => {
+    if (!route?.params?.product && route?.params?.productId) {
+      loadProduct();
+    }
+  }, [route?.params?.productId]);
+
+  const loadProduct = async () => {
+    try {
+      const data = await productService.getProductById(route.params.productId);
+      setProduct(data);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Product record could not be retrieved.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddToCart = () => {
     setAddingToCart(true);
@@ -96,39 +116,29 @@ const ProductDetailScreen = ({ route, navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Image area */}
-        <View style={styles.imageArea}>
-          <View style={styles.mainImageBox}>
-            {product.imageUrl ? (
-              <Image 
-                source={{ uri: product.imageUrl.startsWith('http') ? product.imageUrl : `${BASE_SERVER_URL}${product.imageUrl}` }}
-                style={{ width: '100%', height: '100%', borderRadius: Radius.xl }}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={styles.imagePlaceholder}>
-                <Ionicons name="flask-outline" size={56} color={Colors.primary} />
-              </View>
-            )}
-          </View>
-          {/* Thumbnail row - hidden if no dynamic images for now */}
-          {!product.imageUrl && (
-            <View style={styles.thumbRow}>
-              {[0, 1].map(i => (
-                <TouchableOpacity
-                  key={i}
-                  onPress={() => setSelectedImage(i)}
-                  style={[styles.thumb, selectedImage === i && styles.thumbActive]}
-                >
-                  <View style={styles.thumbPlaceholder}>
-                    <Text style={styles.thumbNum}>{i + 1}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Image area */}
+          <View style={styles.imageArea}>
+            <View style={styles.mainImageBox}>
+              {product.imageUrl ? (
+                <Image 
+                  source={{ uri: product.imageUrl.startsWith('http') ? product.imageUrl : `${BASE_SERVER_URL}${product.imageUrl}` }}
+                  style={{ width: '100%', height: '100%', borderRadius: Radius.xl }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Ionicons name="flask-outline" size={56} color={Colors.primary} />
+                  <Text style={styles.placeholderText}>GlowHive Formulation</Text>
+                </View>
+              )}
+            </View>
+          </View>
 
         <View style={styles.contentPad}>
           {/* Category */}
@@ -142,7 +152,16 @@ const ProductDetailScreen = ({ route, navigation }) => {
           <Text style={styles.size}>{product.size || '30ML'}</Text>
 
           {/* Description */}
-          <Text style={styles.description}>{product.description}</Text>
+          <Text style={styles.description}>{product.description || 'No detailed formulation description provided for this archive entry.'}</Text>
+
+          {/* Skin Type Tags */}
+          <View style={styles.tagRow}>
+            {product.skinTypeTags?.map((tag, idx) => (
+              <View key={idx} style={styles.tag}>
+                <Text style={styles.tagText}>{tag.toUpperCase()}</Text>
+              </View>
+            ))}
+          </View>
 
           {/* Stock warning */}
           {product.stock <= 5 && product.stock > 0 && (
@@ -164,7 +183,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
           {/* Molecular Composition */}
           <Text style={styles.sectionTitle}>Molecular Composition</Text>
           <View style={styles.ingredientsGrid}>
-            {(product.ingredients || MOCK_PRODUCT.ingredients).map((ing, i) => (
+            {(Array.isArray(product.ingredients) ? product.ingredients : 
+               (typeof product.ingredients === 'string' ? product.ingredients.split(',').map(s => s.trim()) : MOCK_PRODUCT.ingredients)
+            ).map((ing, i) => (
               <View key={i} style={styles.ingredientChip}>
                 <Text style={styles.ingredientText}>{ing.toUpperCase()}</Text>
               </View>
@@ -181,13 +202,6 @@ const ProductDetailScreen = ({ route, navigation }) => {
             <Text style={styles.ratingNum}>{avgRating} ({MOCK_REVIEWS.length} Reviews)</Text>
           </View>
 
-          <GHButton
-            title="WRITE REVIEW"
-            variant="outline"
-            style={styles.writeReviewBtn}
-            onPress={() => {}}
-          />
-
           {MOCK_REVIEWS.map(review => (
             <View key={review._id} style={styles.reviewCard}>
               <StarRating rating={review.rating} />
@@ -201,8 +215,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
               </View>
             </View>
           ))}
-        </View>
-      </ScrollView>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -242,23 +257,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   imagePlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  thumbRow: { flexDirection: 'row', gap: Spacing.sm },
-  thumb: {
-    width: 60,
-    height: 60,
-    borderRadius: Radius.md,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'transparent',
+  placeholderText: {
+    marginTop: Spacing.sm,
+    fontSize: Typography.xs,
+    color: Colors.secondary,
+    letterSpacing: Typography.wider,
+    fontWeight: '600',
   },
-  thumbActive: { borderColor: Colors.primary },
-  thumbPlaceholder: {
-    flex: 1,
-    backgroundColor: Colors.primaryDark,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  thumbNum: { color: Colors.white, fontWeight: '700', fontSize: Typography.md },
 
   // Content
   contentPad: { paddingHorizontal: Spacing.base, paddingBottom: Spacing.xxxl },
@@ -306,17 +311,36 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.xl },
 
   sectionTitle: {
-    fontSize: Typography.lg,
+    fontSize: Typography.lg + 2,
     fontFamily: 'Georgia',
     fontWeight: '700',
     color: Colors.black,
     marginBottom: Spacing.base,
+    letterSpacing: -0.2,
   },
   ingredientsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.sm,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginBottom: Spacing.lg,
+  },
+  tag: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    backgroundColor: Colors.neutralDark,
+    borderRadius: Radius.sm,
+  },
+  tagText: {
+    fontSize: Typography.xs - 2,
+    fontWeight: '700',
+    color: Colors.secondary,
+    letterSpacing: Typography.widest,
   },
   ingredientChip: {
     borderWidth: 1,

@@ -59,7 +59,7 @@ const HomeScreen = ({ navigation }) => {
     <TouchableOpacity
       style={styles.trendingCard}
       activeOpacity={0.9}
-      onPress={() => navigation.navigate('ProductDetail', { productId: item._id })}
+      onPress={() => navigation.navigate('ProductDetail', { productId: item._id, product: item })}
     >
       <View style={styles.trendingImageBox}>
         {item.imageUrl ? (
@@ -153,7 +153,7 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity
             key={item._id}
             style={styles.essentialCard}
-            onPress={() => navigation.navigate('ProductDetail', { productId: item._id })}
+            onPress={() => navigation.navigate('ProductDetail', { productId: item._id, product: item })}
             activeOpacity={0.9}
           >
             <View style={styles.essentialImageBox}>
