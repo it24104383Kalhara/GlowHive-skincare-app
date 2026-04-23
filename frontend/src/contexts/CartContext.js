@@ -1,35 +1,49 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from './AuthContext';
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
+  const { user } = useContext(AuthContext);
   const [cartItems, setCartItems] = useState([]);
+  const cartKey = user ? `glowhive_cart_${user._id}` : null;
 
   useEffect(() => {
     const loadCart = async () => {
+      if (!cartKey) {
+        setCartItems([]);
+        return;
+      }
       try {
-        const savedCart = await AsyncStorage.getItem('glowhive_cart');
+        const savedCart = await AsyncStorage.getItem(cartKey);
         if (savedCart) {
           setCartItems(JSON.parse(savedCart));
+        } else {
+          setCartItems([]);
         }
       } catch (error) {
         console.error('Failed to load cart', error);
       }
     };
     loadCart();
-  }, []);
+  }, [cartKey]);
 
   useEffect(() => {
     const saveCart = async () => {
+      if (!cartKey) return;
       try {
-        await AsyncStorage.setItem('glowhive_cart', JSON.stringify(cartItems));
+        await AsyncStorage.setItem(cartKey, JSON.stringify(cartItems));
       } catch (error) {
         console.error('Failed to save cart', error);
       }
     };
-    saveCart();
-  }, [cartItems]);
+    
+    // Only save if we have a user and items (or we just cleared it)
+    if (cartKey) {
+      saveCart();
+    }
+  }, [cartItems, cartKey]);
 
   const addToCart = (product) => {
     setCartItems(prev => {
