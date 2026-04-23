@@ -24,6 +24,7 @@ import productService from '../services/productService';
 import { AuthContext } from '../contexts/AuthContext';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
+import GHModal from '../components/GHModal';
 
 const DeleteProductListScreen = ({ navigation }) => {
   const [products, setProducts] = useState([]);
@@ -31,6 +32,23 @@ const DeleteProductListScreen = ({ navigation }) => {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const { user } = useContext(AuthContext);
+
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    confirmText: '',
+    onConfirm: () => {},
+    variant: 'danger'
+  });
+
+  const showModal = (config) => {
+    setModalConfig({ ...config, visible: true });
+  };
+
+  const hideModal = () => {
+    setModalConfig(prev => ({ ...prev, visible: false }));
+  };
 
   const fetchProducts = async () => {
     try {
@@ -52,34 +70,44 @@ const DeleteProductListScreen = ({ navigation }) => {
   );
 
   const handleDelete = async (product) => {
-    Alert.alert(
-      'Delete Product',
-      `Are you sure you want to completely remove "${product.title}" from the database? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setDeletingId(product._id);
-              await productService.deleteProduct(product._id, user.token);
-              
-              // Remove locally to quickly update the screen
-              setProducts(prev => prev.filter(p => p._id !== product._id));
-              setSelectedProductId(null);
-              
-              Alert.alert('Deleted', 'The product has been removed.');
-            } catch (error) {
-              console.error(error);
-              Alert.alert('Error', 'Could not delete the product');
-            } finally {
-              setDeletingId(null);
-            }
-          }
+    showModal({
+      title: 'Delete Formulation',
+      message: `Are you sure you want to completely remove "${product.title}" from the database? This action cannot be undone.`,
+      confirmText: 'PERMANENTLY DELETE',
+      onConfirm: async () => {
+        hideModal();
+        try {
+          setDeletingId(product._id);
+          await productService.deleteProduct(product._id, user.token);
+          
+          setProducts(prev => prev.filter(p => p._id !== product._id));
+          setSelectedProductId(null);
+          
+          // Use another modal for success
+          setTimeout(() => {
+            showModal({
+              title: 'Success',
+              message: 'The formulation has been removed from the archive.',
+              confirmText: 'OK',
+              onConfirm: hideModal,
+              variant: 'primary'
+            });
+          }, 500);
+        } catch (error) {
+          console.error(error);
+          showModal({
+            title: 'Error',
+            message: 'Could not delete the product. Please check your administrative connection.',
+            confirmText: 'RETRY',
+            onConfirm: hideModal,
+            variant: 'danger'
+          });
+        } finally {
+          setDeletingId(null);
         }
-      ]
-    );
+      },
+      variant: 'danger'
+    });
   };
 
   const toggleSelect = (id) => {
@@ -170,6 +198,16 @@ const DeleteProductListScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      <GHModal
+        visible={modalConfig.visible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmText={modalConfig.confirmText}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={hideModal}
+        variant={modalConfig.variant}
+      />
     </SafeAreaView>
   );
 };

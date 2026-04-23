@@ -35,6 +35,8 @@ const GHButton = ({
         <ActivityIndicator color={variant === 'primary' ? Colors.white : Colors.primary} />
       ) : (
         <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
           style={[
             styles.text,
             variant === 'primary' && styles.textPrimary,

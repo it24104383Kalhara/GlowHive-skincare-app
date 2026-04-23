@@ -18,6 +18,7 @@ import SideMenu from '../components/SideMenu';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '../contexts/AuthContext';
 import productService from '../services/productService';
+import GHModal from '../components/GHModal';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 
 const SKIN_TYPES = ['Oily', 'Dry', 'Sensitive', 'Combination', 'Mature'];
@@ -37,21 +38,38 @@ const AddProductScreen = ({ navigation }) => {
   
   const { user, hasSessionImagePermission, setHasSessionImagePermission } = useContext(AuthContext);
 
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    confirmText: 'OK',
+    onConfirm: () => {},
+    onCancel: null,
+    variant: 'primary'
+  });
+
+  const showModal = (config) => {
+    setModalConfig({ ...config, visible: true });
+  };
+
+  const hideModal = () => {
+    setModalConfig(prev => ({ ...prev, visible: false }));
+  };
+
   const pickImage = async () => {
     if (!hasSessionImagePermission) {
-      Alert.alert(
-        'Media Access Request',
-        'GlowHive needs to access your photo library for this session to upload product imagery. Do you allow?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Allow', onPress: async () => {
-              setHasSessionImagePermission(true);
-              launchNativePicker();
-            }
-          }
-        ]
-      );
+      showModal({
+        title: 'Media Access',
+        message: 'GlowHive needs to access your photo library to upload product imagery. Do you allow?',
+        confirmText: 'ALLOW',
+        onConfirm: () => {
+          setHasSessionImagePermission(true);
+          hideModal();
+          launchNativePicker();
+        },
+        onCancel: hideModal,
+        variant: 'primary'
+      });
     } else {
       launchNativePicker();
     }
@@ -90,16 +108,20 @@ const AddProductScreen = ({ navigation }) => {
 
   const handleSave = async () => {
     if (!title || !price || !imageUri) {
-      Alert.alert('Missing fields', 'Please enter product title, price, and select an image.');
+      showModal({
+        title: 'Incomplete Archive',
+        message: 'Please provide a title, price, and an editorial image to save this formulation.',
+        confirmText: 'OK',
+        onConfirm: hideModal,
+        variant: 'primary'
+      });
       return;
     }
     setSaving(true);
     
     try {
-      // 1. Upload the image file first to receive the hosted URL
       const uploadedImageUrl = await productService.uploadImage(imageUri, title);
 
-      // 2. Format product payload
       const productData = {
         title,
         price: Number(price),
@@ -110,10 +132,8 @@ const AddProductScreen = ({ navigation }) => {
         imageUrl: uploadedImageUrl,
       };
 
-      // 3. Save directly to the MongoDB backend
       await productService.createProduct(productData, user.token);
 
-      // 4. Clear form locally ONLY after successful save
       setTitle("");
       setPrice("");
       setStock("");
@@ -122,12 +142,25 @@ const AddProductScreen = ({ navigation }) => {
       setSelectedCategory("SERUMS");
       setImageUri(null);
 
-      Alert.alert('Product Saved', `"${title}" has been added to the database with its image.`, [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showModal({
+        title: 'Formulation Saved',
+        message: `"${title}" has been successfully added to the digital archive.`,
+        confirmText: 'OK',
+        onConfirm: () => {
+          hideModal();
+          navigation.goBack();
+        },
+        variant: 'primary'
+      });
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Could not save the product. Please try again.');
+      showModal({
+        title: 'Save Error',
+        message: 'Could not synchronize this entry with the database. Please check your connection.',
+        confirmText: 'RETRY',
+        onConfirm: hideModal,
+        variant: 'danger'
+      });
     } finally {
       setSaving(false);
     }
@@ -319,6 +352,16 @@ const AddProductScreen = ({ navigation }) => {
 
         <View style={{ height: Spacing.xxxl }} />
       </ScrollView>
+
+      <GHModal
+        visible={modalConfig.visible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmText={modalConfig.confirmText}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        variant={modalConfig.variant}
+      />
     </SafeAreaView>
   );
 };

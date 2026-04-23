@@ -18,6 +18,7 @@ import { BASE_SERVER_URL } from '../services/api';
 import productService from '../services/productService';
 import { CartContext } from '../contexts/CartContext';
 import CartBadgeIcon from '../components/CartBadgeIcon';
+import GHModal from '../components/GHModal';
 
 const MOCK_PRODUCT = {
   _id: '1',
@@ -79,6 +80,23 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
   const { addToCart } = useContext(CartContext);
 
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    confirmText: 'OK',
+    onConfirm: () => {},
+    variant: 'primary'
+  });
+
+  const showModal = (config) => {
+    setModalConfig({ ...config, visible: true });
+  };
+
+  const hideModal = () => {
+    setModalConfig(prev => ({ ...prev, visible: false }));
+  };
+
   useEffect(() => {
     if (!route?.params?.product && route?.params?.productId) {
       loadProduct();
@@ -91,7 +109,16 @@ const ProductDetailScreen = ({ route, navigation }) => {
       setProduct(data);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Product record could not be retrieved.');
+      showModal({
+        title: 'Error',
+        message: 'Product record could not be retrieved from the archive.',
+        confirmText: 'RETRY',
+        onConfirm: () => {
+          hideModal();
+          loadProduct();
+        },
+        variant: 'danger'
+      });
     } finally {
       setLoading(false);
     }
@@ -102,7 +129,13 @@ const ProductDetailScreen = ({ route, navigation }) => {
     addToCart(product);
     setTimeout(() => {
       setAddingToCart(false);
-      Alert.alert('Added to Bag', `${product.title} has been added to your bag.`);
+      showModal({
+        title: 'Archive Added',
+        message: `${product.title} has been added to your shopping bag.`,
+        confirmText: 'CONTINUE BROWSING',
+        onConfirm: hideModal,
+        variant: 'primary'
+      });
     }, 500);
   };
 
@@ -221,6 +254,16 @@ const ProductDetailScreen = ({ route, navigation }) => {
           </View>
         </ScrollView>
       )}
+
+      <GHModal
+        visible={modalConfig.visible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmText={modalConfig.confirmText}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={null}
+        variant={modalConfig.variant}
+      />
     </SafeAreaView>
   );
 };

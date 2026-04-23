@@ -22,6 +22,7 @@ import { BASE_SERVER_URL } from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
 import productService from '../services/productService';
+import GHModal from '../components/GHModal';
 
 const HomeScreen = ({ navigation }) => {
   const [greeting, setGreeting] = useState('');
@@ -32,6 +33,23 @@ const HomeScreen = ({ navigation }) => {
 
   const { user } = useContext(AuthContext);
   const { addToCart } = useContext(CartContext);
+
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    confirmText: 'OK',
+    onConfirm: () => {},
+    variant: 'primary'
+  });
+
+  const showModal = (config) => {
+    setModalConfig({ ...config, visible: true });
+  };
+
+  const hideModal = () => {
+    setModalConfig(prev => ({ ...prev, visible: false }));
+  };
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -61,7 +79,13 @@ const HomeScreen = ({ navigation }) => {
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    Alert.alert('Archive Added', `${product.title} has been added to your bag.`);
+    showModal({
+      title: 'Archive Added',
+      message: `${product.title} has been added to your shopping bag.`,
+      confirmText: 'CONTINUE BROWSING',
+      onConfirm: hideModal,
+      variant: 'primary'
+    });
   };
 
 
@@ -219,6 +243,16 @@ const HomeScreen = ({ navigation }) => {
         visible={menuVisible} 
         onClose={() => setMenuVisible(false)} 
         navigation={navigation} 
+      />
+
+      <GHModal
+        visible={modalConfig.visible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmText={modalConfig.confirmText}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={null} // Information modal
+        variant={modalConfig.variant}
       />
     </SafeAreaView>
   );

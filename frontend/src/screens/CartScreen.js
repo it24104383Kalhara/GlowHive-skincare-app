@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -16,45 +16,63 @@ import { CartContext } from '../contexts/CartContext';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
 import GHButton from '../components/GHButton';
+import GHModal from '../components/GHModal';
 
 const CartScreen = ({ navigation }) => {
-  const { 
-    cartItems, 
-    cartTotal, 
-    removeFromCart, 
-    updateQuantity, 
-    clearCart 
+  const {
+    cartItems,
+    cartTotal,
+    removeFromCart,
+    updateQuantity,
+    clearCart
   } = useContext(CartContext);
 
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    confirmText: '',
+    onConfirm: () => { },
+    variant: 'primary'
+  });
+
+  const showModal = (config) => {
+    setModalConfig({ ...config, visible: true });
+  };
+
+  const hideModal = () => {
+    setModalConfig(prev => ({ ...prev, visible: false }));
+  };
+
   const handleCheckout = () => {
-    if (cartItems.length === 0) {
-      Alert.alert('Empty Bag', 'Please add items to your bag before checking out.');
-      return;
-    }
-    Alert.alert(
-      'Proceed to Checkout', 
-      'This feature is coming soon in the next clinical update.',
-      [{ text: 'OK', onPress: () => {} }]
-    );
+    if (cartItems.length === 0) return;
+    showModal({
+      title: 'Proceed to Checkout',
+      message: 'This feature is coming soon in the next clinical update. Would you like to keep exploring?',
+      confirmText: 'KEEP EXPLORING',
+      onConfirm: () => {
+        hideModal();
+        navigation.navigate('Catalogue');
+      },
+      variant: 'primary'
+    });
   };
 
   const handleRemoveItem = (item) => {
-    Alert.alert(
-      'Remove Formulation',
-      `Are you sure you want to remove "${item.title}" from your shopping bag?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Remove', 
-          style: 'destructive', 
-          onPress: () => removeFromCart(item._id) 
-        }
-      ]
-    );
+    showModal({
+      title: 'Remove Product',
+      message: `Are you sure you want to remove "${item.title}" from your shopping bag?`,
+      confirmText: 'REMOVE',
+      onConfirm: () => {
+        removeFromCart(item._id);
+        hideModal();
+      },
+      variant: 'danger'
+    });
   };
 
   const renderCartItem = ({ item }) => {
-    const imageUrl = item.imageUrl 
+    const imageUrl = item.imageUrl
       ? (item.imageUrl.startsWith('http') ? item.imageUrl : `${BASE_SERVER_URL}${item.imageUrl}`)
       : null;
 
@@ -71,16 +89,16 @@ const CartScreen = ({ navigation }) => {
           <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
           <Text style={styles.itemCategory}>{item.category || 'FORMULATION'}</Text>
           <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-          
+
           <View style={styles.quantityContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => updateQuantity(item._id, -1)}
               style={styles.qtyBtn}
             >
               <Ionicons name="remove" size={16} color={Colors.black} />
             </TouchableOpacity>
             <Text style={styles.qtyText}>{item.quantity}</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => updateQuantity(item._id, 1)}
               style={styles.qtyBtn}
             >
@@ -88,7 +106,7 @@ const CartScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => handleRemoveItem(item)}
           style={styles.removeBtn}
         >
@@ -101,18 +119,24 @@ const CartScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBack}>
           <Ionicons name="chevron-back" size={24} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Shopping Bag</Text>
-        <TouchableOpacity onPress={() => cartItems.length > 0 && 
-          Alert.alert('Clear Bag', 'Are you sure?', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Clear', style: 'destructive', onPress: clearCart }
-          ])}>
+        <TouchableOpacity onPress={() => cartItems.length > 0 &&
+          showModal({
+            title: 'Clear Bag',
+            message: 'Are you sure you want to remove all formulations from your archive?',
+            confirmText: 'CLEAR ALL',
+            onConfirm: () => {
+              clearCart();
+              hideModal();
+            },
+            variant: 'danger'
+          })}>
           <Text style={[styles.headerClear, { opacity: cartItems.length > 0 ? 1 : 0.3 }]}>CLEAR</Text>
         </TouchableOpacity>
       </View>
@@ -124,8 +148,8 @@ const CartScreen = ({ navigation }) => {
           <Text style={styles.emptySubtitle}>
             Browse our clinical formulations and add them to your archive.
           </Text>
-          <GHButton 
-            title="EXPLORE CATALOGUE" 
+          <GHButton
+            title="EXPLORE CATALOGUE"
             onPress={() => navigation.navigate('Catalogue')}
             style={styles.exploreBtn}
           />
@@ -155,15 +179,25 @@ const CartScreen = ({ navigation }) => {
               <Text style={styles.totalLabel}>Total</Text>
               <Text style={styles.totalValue}>${(cartTotal + 15).toFixed(2)}</Text>
             </View>
-            
-            <GHButton 
-              title="PROCEED TO CHECKOUT" 
+
+            <GHButton
+              title="PROCEED TO CHECKOUT"
               onPress={handleCheckout}
               style={styles.checkoutBtn}
             />
           </View>
         </View>
       )}
+
+      <GHModal
+        visible={modalConfig.visible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmText={modalConfig.confirmText}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={hideModal}
+        variant={modalConfig.variant}
+      />
     </SafeAreaView>
   );
 };

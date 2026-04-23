@@ -19,6 +19,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import productService from '../services/productService';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../utils/theme';
 import { BASE_SERVER_URL } from '../services/api';
+import GHModal from '../components/GHModal';
 
 const SKIN_TYPES = ['Oily', 'Dry', 'Sensitive', 'Combination', 'Mature'];
 const CATEGORIES = ['SERUMS', 'OILS', 'CLEANSERS', 'BALMS', 'MISTS'];
@@ -40,22 +41,39 @@ const UpdateProductFormScreen = ({ route, navigation }) => {
   const [imageChanged, setImageChanged] = useState(false);
   
   const { user, hasSessionImagePermission, setHasSessionImagePermission } = useContext(AuthContext);
+  
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    confirmText: 'OK',
+    onConfirm: () => {},
+    onCancel: null,
+    variant: 'primary'
+  });
+
+  const showModal = (config) => {
+    setModalConfig({ ...config, visible: true });
+  };
+
+  const hideModal = () => {
+    setModalConfig(prev => ({ ...prev, visible: false }));
+  };
 
   const pickImage = async () => {
     if (!hasSessionImagePermission) {
-      Alert.alert(
-        'Media Access Request',
-        'GlowHive needs to access your photo library for this session to upload product imagery. Do you allow?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Allow', onPress: async () => {
-              setHasSessionImagePermission(true);
-              launchNativePicker();
-            }
-          }
-        ]
-      );
+      showModal({
+        title: 'Media Access',
+        message: 'GlowHive needs to access your photo library to upload product imagery. Do you allow?',
+        confirmText: 'ALLOW',
+        onConfirm: () => {
+          setHasSessionImagePermission(true);
+          hideModal();
+          launchNativePicker();
+        },
+        onCancel: hideModal,
+        variant: 'primary'
+      });
     } else {
       launchNativePicker();
     }
@@ -90,7 +108,13 @@ const UpdateProductFormScreen = ({ route, navigation }) => {
 
   const handleUpdate = async () => {
     if (!title || !price) {
-      Alert.alert('Missing fields', 'Please enter product title and price.');
+      showModal({
+        title: 'Incomplete Data',
+        message: 'Please provide a product title and price to proceed with the update.',
+        confirmText: 'OK',
+        onConfirm: hideModal,
+        variant: 'primary'
+      });
       return;
     }
     setSaving(true);
@@ -113,12 +137,25 @@ const UpdateProductFormScreen = ({ route, navigation }) => {
 
       await productService.updateProduct(product._id, productData, user.token);
 
-      Alert.alert('Product Updated', `"${title}" has been modified successfully.`, [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showModal({
+        title: 'Archive Updated',
+        message: `"${title}" has been successfully modified in the digital archive.`,
+        confirmText: 'OK',
+        onConfirm: () => {
+          hideModal();
+          navigation.goBack();
+        },
+        variant: 'primary'
+      });
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Could not update the product. Please try again.');
+      showModal({
+        title: 'Update Error',
+        message: 'Could not synchronize changes with the database. Please check your administrative credentials.',
+        confirmText: 'RETRY',
+        onConfirm: hideModal,
+        variant: 'danger'
+      });
     } finally {
       setSaving(false);
     }
@@ -201,6 +238,16 @@ const UpdateProductFormScreen = ({ route, navigation }) => {
         </View>
         <View style={{ height: Spacing.xxxl }} />
       </ScrollView>
+
+      <GHModal
+        visible={modalConfig.visible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmText={modalConfig.confirmText}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        variant={modalConfig.variant}
+      />
     </SafeAreaView>
   );
 };
