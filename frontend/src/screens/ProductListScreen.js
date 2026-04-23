@@ -84,11 +84,68 @@ const ProductListScreen = ({ navigation }) => {
     });
   };
 
+  // Prepare data for FlatList including header items
+  const listData = [
+    { id: 'header-title', type: 'title' },
+    { id: 'header-filters', type: 'filters' },
+    ...filtered.map(p => ({ ...p, id: p._id, type: 'product' }))
+  ];
+
+  const renderItem = ({ item }) => {
+    if (item.type === 'title') {
+      return (
+        <View style={styles.titleBlock}>
+          <Text style={styles.eyebrow}>CATALOGUE</Text>
+          <Text style={styles.pageTitle}>Full Collection</Text>
+          <Text style={styles.subtitle}>
+            Each formulation represents a masterclass in scientifically advanced, botanically inspired skincare.
+          </Text>
+        </View>
+      );
+    }
+    
+    if (item.type === 'filters') {
+      return (
+        <View style={styles.stickyFilterContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterRow}
+            decelerationRate="fast"
+            snapToAlignment="start"
+          >
+            {FILTERS.map(f => (
+              <TouchableOpacity
+                key={f}
+                onPress={() => setActiveFilter(f)}
+                style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>
+                  {f}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <Text style={styles.productCount}>{filtered.length} PRODUCTS</Text>
+        </View>
+      );
+    }
+
+    return (
+      <ProductCard
+        product={item}
+        onPress={() => navigation.navigate('ProductDetail', { productId: item._id, product: item })}
+        onAddToCart={() => handleAddToCart(item)}
+      />
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
+      {/* Main Header (Sticky Navigation) */}
       <View style={styles.header}>
         {user?.isAdmin ? (
           <TouchableOpacity onPress={() => setMenuVisible(true)}>
@@ -108,52 +165,12 @@ const ProductListScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Page title */}
-      <View style={styles.titleBlock}>
-        <Text style={styles.eyebrow}>CATALOGUE</Text>
-        <Text style={styles.pageTitle}>Full Collection</Text>
-        <Text style={styles.subtitle}>
-          Each formulation represents a masterclass in scientifically advanced, botanically inspired skincare.
-        </Text>
-      </View>
-
-      {/* Filter chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterRow}
-        style={styles.filterScroll}
-        decelerationRate="fast"
-        snapToAlignment="start"
-      >
-        {FILTERS.map(f => (
-          <TouchableOpacity
-            key={f}
-            onPress={() => setActiveFilter(f)}
-            style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>
-              {f}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Product count */}
-      <Text style={styles.productCount}>{filtered.length} PRODUCTS</Text>
-
       {/* Product list */}
       <FlatList
-        data={filtered}
-        keyExtractor={item => item._id}
-        renderItem={({ item }) => (
-          <ProductCard
-            product={item}
-            onPress={() => navigation.navigate('ProductDetail', { productId: item._id, product: item })}
-            onAddToCart={() => handleAddToCart(item)}
-          />
-        )}
+        data={listData}
+        keyExtractor={item => item.id}
+        stickyHeaderIndices={[1]}
+        renderItem={renderItem}
         style={styles.flatList}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
@@ -224,17 +241,17 @@ const styles = StyleSheet.create({
     fontSize: Typography.sm,
     color: Colors.secondary,
     lineHeight: 20,
+    marginBottom: Spacing.md,
   },
-  filterScroll: { 
-    height: 60, 
-    flexGrow: 0,
-    flexShrink: 0,
-    marginVertical: Spacing.xs,
-    zIndex: 10,
+  stickyFilterContainer: {
+    backgroundColor: Colors.neutral,
+    paddingBottom: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   filterRow: {
     paddingHorizontal: Spacing.base,
-    paddingVertical: 4,
+    paddingVertical: Spacing.sm,
     gap: Spacing.sm,
     flexDirection: 'row',
   },
