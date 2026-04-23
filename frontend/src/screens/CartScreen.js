@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   headerClear: {
     fontSize: Typography.xs,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: Colors.primary,
     letterSpacing: Typography.wide,
   },
   list: {
