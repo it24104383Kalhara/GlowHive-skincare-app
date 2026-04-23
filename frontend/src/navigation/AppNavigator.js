@@ -63,19 +63,18 @@ const MainTabs = () => {
           };
           
           return (
-            <View style={{ alignItems: 'center' }}>
-              <Ionicons name={icons[route.name] || 'ellipse-outline'} size={24} color={color} />
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <View style={[
+                styles.iconContainer,
+                focused && styles.activeIconContainer
+              ]}>
+                <Ionicons 
+                  name={icons[route.name] || 'ellipse-outline'} 
+                  size={focused ? 26 : 24} 
+                  color={color} 
+                />
+              </View>
               
-              {/* Active Indicator Dot */}
-              {focused && (
-                <View style={styles.activeDot} />
-              )}
-              
-              {route.name === 'Catalogue' && cartCount > 0 && (
-                <View style={styles.tabBadge}>
-                  <Text style={styles.tabBadgeText}>{cartCount}</Text>
-                </View>
-              )}
             </View>
           );
         },
@@ -225,14 +224,17 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontWeight: '700',
   },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.primary,
-    marginTop: 4,
-    position: 'absolute',
-    bottom: -8,
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeIconContainer: {
+    backgroundColor: Colors.white,
+    ...Shadow.sm,
+    transform: [{ translateY: -4 }], // Subtle lift
   },
 });
 
