@@ -48,16 +48,10 @@ const LoginScreen = ({ navigation }) => {
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { justifyContent: 'center' }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Top bar */}
-          <View style={styles.topBar}>
-            <Ionicons name="close" size={20} color={Colors.black} />
-            <Text style={styles.topBarTitle}>THE CLINICAL EDITORIAL</Text>
-            <View style={{ width: 20 }} />
-          </View>
 
           {/* Hero Header */}
           <View style={styles.header}>
@@ -81,34 +75,15 @@ const LoginScreen = ({ navigation }) => {
               onChangeText={setPassword}
               placeholder="••••••••"
               secureTextEntry
-              rightAction={() => navigation.navigate('ForgotPassword')}
-              rightActionLabel="FORGOT?"
             />
 
             <View style={styles.ctaRow}>
               <GHButton
-                title="LOGIN TO ARCHIVE"
+                title="LOGIN"
                 onPress={handleLogin}
                 loading={loading}
                 style={styles.loginBtn}
               />
-            </View>
-
-            {/* Divider */}
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Social login */}
-            <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
-                <Text style={styles.socialBtnText}>G</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
-                <Text style={styles.socialBtnText}>iOS</Text>
-              </TouchableOpacity>
             </View>
 
             {/* Register link */}
@@ -128,15 +103,21 @@ const LoginScreen = ({ navigation }) => {
               Glow Hive clinical data is protected by industry standard encryption.
             </Text>
           </View>
-
-          {/* Bottom hero image strip */}
-          <View style={styles.heroImageStrip}>
-            <View style={styles.heroImagePlaceholder}>
-              <Text style={styles.heroImageLabel}>✦ GLOW HIVE</Text>
-            </View>
-          </View>
+          {/* Scrollable content ends here */}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Brand Footer Pinned to Bottom */}
+      <View style={styles.footerBrand}>
+        <View style={styles.footerCurve} />
+        <View style={styles.footerContent}>
+          <Text style={styles.footerLogo}>✦ GLOW HIVE ✦</Text>
+          <Text style={styles.footerTagline}>EST. MMXXIV | THE BOTANICAL ARCHIVE</Text>
+        </View>
+      </View>
+
+      {/* Fixed Botanical Ribbon at exact bottom */}
+      <View style={styles.fixedBottomRibbon} />
     </SafeAreaView>
   );
 };
@@ -165,11 +146,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xxl,
+    paddingTop: 80, // Lowered for editorial feel
+    paddingBottom: Spacing.xl,
   },
   brandLabel: {
-    fontSize: Typography.xs,
+    fontSize: Typography.base,
     letterSpacing: Typography.widest,
     fontWeight: '600',
     color: Colors.secondary,
@@ -188,43 +169,11 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xxl,
   },
   ctaRow: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   loginBtn: {
     width: '100%',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.xl,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.border,
-  },
-  dividerText: {
-    marginHorizontal: Spacing.base,
-    fontSize: Typography.sm,
-    color: Colors.secondary,
-    fontWeight: '500',
-    letterSpacing: Typography.wider,
-  },
-  socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: Spacing.base,
-    marginBottom: Spacing.xxl,
-  },
-  socialBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: Radius.round,
-    backgroundColor: Colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Shadow.md,
   },
   socialBtnText: {
     fontSize: Typography.sm,
@@ -237,11 +186,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   registerText: {
-    fontSize: Typography.base,
+    fontSize: Typography.md,
     color: Colors.secondary,
   },
   registerLink: {
-    fontSize: Typography.base,
+    fontSize: Typography.md,
     color: Colors.black,
     fontWeight: '700',
   },
@@ -255,21 +204,40 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     color: Colors.secondary,
   },
-  heroImageStrip: {
-    height: 180,
-    marginTop: Spacing.lg,
+  footerBrand: {
+    backgroundColor: 'transparent',
+    width: '100%',
   },
-  heroImagePlaceholder: {
-    flex: 1,
+  footerCurve: {
+    height: 24,
     backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderTopLeftRadius: 50,
+    borderTopRightRadius: 50,
   },
-  heroImageLabel: {
-    color: Colors.white,
-    fontSize: Typography.xl,
-    letterSpacing: Typography.wider,
+  footerContent: {
+    backgroundColor: Colors.primary,
+    height: 90,
+    alignItems: 'center',
+    paddingTop: 0,
+  },
+  footerLogo: {
+    color: 'rgba(255,255,255,0.95)',
+    fontSize: Typography.lg,
+    letterSpacing: 6,
     fontWeight: '300',
+    fontFamily: 'Georgia',
+    marginBottom: 4,
+  },
+  footerTagline: {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: 9,
+    letterSpacing: 3,
+    fontWeight: '800',
+  },
+  fixedBottomRibbon: {
+    backgroundColor: Colors.primary,
+    height: 12,
+    width: '100%',
   },
 });
 

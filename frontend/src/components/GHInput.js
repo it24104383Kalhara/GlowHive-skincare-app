@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   label: {
-    fontSize: Typography.xs,
+    fontSize: Typography.sm,
     letterSpacing: Typography.widest,
     fontWeight: '600',
     color: Colors.black,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: Typography.md,
+    fontSize: Typography.lg,
     color: Colors.black,
   },
   eyeIcon: {

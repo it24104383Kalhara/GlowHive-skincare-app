@@ -74,11 +74,9 @@ const RegisterScreen = ({ navigation }) => {
         >
           {/* Top bar */}
           <View style={styles.topBar}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
               <Ionicons name="arrow-back" size={24} color={Colors.black} />
             </TouchableOpacity>
-            <Text style={styles.topBarTitle}>THE CLINICAL EDITORIAL</Text>
-            <View style={{ width: 24 }} />
           </View>
 
           {/* Hero Header */}
@@ -137,10 +135,12 @@ const RegisterScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           </View>
-
-          <View style={styles.heroImageStrip}>
-            <View style={styles.heroImagePlaceholder}>
-              <Text style={styles.heroImageLabel}>✦ JOIN THE HIVE</Text>
+          
+          <View style={styles.footer}>
+            <View style={styles.heroImageStrip}>
+              <View style={styles.heroImagePlaceholder}>
+                <Text style={styles.heroImageLabel}>✦ JOIN THE HIVE</Text>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -164,6 +164,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.md,
   },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.neutral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.md,
+    zIndex: 10, 
+  },
   topBarTitle: {
     fontSize: Typography.xs,
     letterSpacing: Typography.wider,
@@ -177,7 +187,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xl,
   },
   brandLabel: {
-    fontSize: Typography.xs,
+    fontSize: Typography.sm,
     letterSpacing: Typography.widest,
     fontWeight: '600',
     color: Colors.secondary,
@@ -208,21 +218,21 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   loginText: {
-    fontSize: Typography.base,
+    fontSize: Typography.md,
     color: Colors.secondary,
   },
   loginLink: {
-    fontSize: Typography.base,
+    fontSize: Typography.md,
     color: Colors.black,
     fontWeight: '700',
   },
   heroImageStrip: {
     height: 120,
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xxl,
   },
   heroImagePlaceholder: {
     flex: 1,
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
