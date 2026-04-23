@@ -99,6 +99,14 @@ const styles = StyleSheet.create({
   closeBtn: {
     alignSelf: 'flex-start',
     marginBottom: Spacing.xxl,
+    width: 36,
+    height: 36,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.neutral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.md,
+    zIndex: 10,   
   },
   titleBlock: { 
     marginBottom: Spacing.xl,

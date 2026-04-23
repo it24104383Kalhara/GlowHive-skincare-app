@@ -73,7 +73,7 @@ const DeleteProductListScreen = ({ navigation }) => {
     showModal({
       title: 'Delete Formulation',
       message: `Are you sure you want to completely remove "${product.title}" from the database? This action cannot be undone.`,
-      confirmText: 'PERMANENTLY DELETE',
+      confirmText: 'DELETE',
       onConfirm: async () => {
         hideModal();
         try {
@@ -174,8 +174,8 @@ const DeleteProductListScreen = ({ navigation }) => {
       
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={26} color={Colors.black} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+          <Ionicons name="chevron-back" size={22} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Delete Mode</Text>
         <View style={{ width: 26 }} />
@@ -220,6 +220,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     paddingHorizontal: Spacing.base, 
     paddingVertical: Spacing.md 
+  },
+  headerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.neutral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.md,
+    zIndex: 10, 
   },
   headerLogo: { fontSize: Typography.md, fontWeight: '700', color: Colors.error },
   titleBlock: { paddingHorizontal: Spacing.base, paddingBottom: Spacing.lg },

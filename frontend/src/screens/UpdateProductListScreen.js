@@ -68,8 +68,8 @@ const UpdateProductListScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={26} color={Colors.black} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+          <Ionicons name="chevron-back" size={28} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Update Mode</Text>
         <View style={{ width: 26 }} />
@@ -100,6 +100,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     paddingHorizontal: Spacing.base, 
     paddingVertical: Spacing.md 
+  },
+  headerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.neutral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.md,
+    zIndex: 10, 
   },
   headerLogo: { fontSize: Typography.md, fontWeight: '700', color: Colors.black },
   titleBlock: { paddingHorizontal: Spacing.base, paddingBottom: Spacing.lg },

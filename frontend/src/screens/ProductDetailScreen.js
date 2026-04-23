@@ -286,11 +286,12 @@ const styles = StyleSheet.create({
   headerBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.white,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.neutral,
     alignItems: 'center',
     justifyContent: 'center',
-    ...Shadow.sm,
+    ...Shadow.md,
+    zIndex: 10, 
   },
   headerLogo: {
     fontSize: Typography.md,

@@ -170,7 +170,7 @@ const AddProductScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <Ionicons name="chevron-back" size={26} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
@@ -375,6 +375,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.md,
+  },
+    headerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.neutral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.md,
+    zIndex: 10, 
   },
   headerLogo: { fontSize: Typography.md, fontWeight: '700', color: Colors.black },
   avatarCircle: {
