@@ -260,7 +260,7 @@ const HomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.neutral },
-  scrollContent: { paddingBottom: 100 },
+  scrollContent: { paddingBottom: 140 }, // Adjusted for floating tab bar
   header: {
     flexDirection: 'row',
     alignItems: 'center',

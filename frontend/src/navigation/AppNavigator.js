@@ -37,17 +37,23 @@ const MainTabs = () => {
         tabBarInactiveTintColor: Colors.secondary,
         tabBarStyle: {
           backgroundColor: Colors.white,
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(0,0,0,0.06)',
-          height: 64,
-          paddingBottom: 10,
-          paddingTop: 8,
+          position: 'absolute',
+          bottom: 25,
+          left: 20,
+          right: 20,
+          borderRadius: Radius.xl,
+          height: 70,
+          paddingBottom: 12,
+          paddingTop: 12,
+          borderTopWidth: 0,
+          ...Shadow.md,
         },
         tabBarLabelStyle: {
-          fontSize: 9,
-          letterSpacing: 1.5,
-          fontWeight: '600',
+          fontSize: 10,
+          letterSpacing: Typography.wide,
+          fontWeight: '700',
           textTransform: 'uppercase',
+          marginTop: 4,
         },
         tabBarIcon: ({ focused, color, size }) => {
           const icons = {
@@ -57,8 +63,14 @@ const MainTabs = () => {
           };
           
           return (
-            <View>
-              <Ionicons name={icons[route.name] || 'ellipse-outline'} size={22} color={color} />
+            <View style={{ alignItems: 'center' }}>
+              <Ionicons name={icons[route.name] || 'ellipse-outline'} size={24} color={color} />
+              
+              {/* Active Indicator Dot */}
+              {focused && (
+                <View style={styles.activeDot} />
+              )}
+              
               {route.name === 'Catalogue' && cartCount > 0 && (
                 <View style={styles.tabBadge}>
                   <Text style={styles.tabBadgeText}>{cartCount}</Text>
@@ -211,7 +223,16 @@ const styles = StyleSheet.create({
   tabBadgeText: {
     color: Colors.white,
     fontSize: 8,
-    fontWeight: '800',
+    fontWeight: '700',
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.primary,
+    marginTop: 4,
+    position: 'absolute',
+    bottom: -8,
   },
 });
 

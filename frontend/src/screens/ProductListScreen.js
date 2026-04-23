@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingTop: Spacing.sm,
-    paddingBottom: 32,
+    paddingBottom: 120, // Adjusted for floating tab bar
   },
   flatList: {
     flex: 1,
