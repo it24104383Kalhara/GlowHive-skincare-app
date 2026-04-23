@@ -164,6 +164,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral,
     alignItems: 'center',
     justifyContent: 'center',
+    ...Shadow.md,
     zIndex: 10,
   },
   placeholderTitle: {
