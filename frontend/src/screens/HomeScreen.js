@@ -82,8 +82,13 @@ const HomeScreen = ({ navigation }) => {
     showModal({
       title: 'Archive Added',
       message: `${product.title} has been added to your shopping bag.`,
-      confirmText: 'CONTINUE BROWSING',
-      onConfirm: hideModal,
+      confirmText: 'VIEW BAG',
+      onConfirm: () => {
+        hideModal();
+        navigation.navigate('Cart');
+      },
+      cancelText: 'CONTINUE',
+      onCancel: hideModal,
       variant: 'primary'
     });
   };
@@ -251,7 +256,8 @@ const HomeScreen = ({ navigation }) => {
         message={modalConfig.message}
         confirmText={modalConfig.confirmText}
         onConfirm={modalConfig.onConfirm}
-        onCancel={null} // Information modal
+        cancelText={modalConfig.cancelText}
+        onCancel={modalConfig.onCancel}
         variant={modalConfig.variant}
       />
     </SafeAreaView>

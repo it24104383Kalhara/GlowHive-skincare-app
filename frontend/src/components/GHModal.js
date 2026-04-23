@@ -140,8 +140,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: Radius.pill,
-    borderWidth: 2,
-    borderColor: Colors.primary,
     backgroundColor: 'transparent',
   },
   cancelText: {

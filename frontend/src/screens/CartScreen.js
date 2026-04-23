@@ -49,6 +49,7 @@ const CartScreen = ({ navigation }) => {
     showModal({
       title: 'Proceed to Checkout',
       message: 'This feature is coming soon in the next clinical update. Would you like to keep exploring?',
+      text: 'View Cart',
       confirmText: 'KEEP EXPLORING',
       onConfirm: () => {
         hideModal();
