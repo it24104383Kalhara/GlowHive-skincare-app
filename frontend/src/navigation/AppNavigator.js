@@ -14,7 +14,7 @@ import UpdateProductListScreen from '../screens/UpdateProductListScreen';
 import UpdateProductFormScreen from '../screens/UpdateProductFormScreen';
 import DeleteProductListScreen from '../screens/DeleteProductListScreen';
 import CartScreen from '../screens/CartScreen';
-import { Colors, Typography } from '../utils/theme';
+import { Colors, Typography, Shadow, Spacing, Radius } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
 
@@ -29,6 +29,7 @@ const MainTabs = () => {
 
   return (
     <Tab.Navigator
+      backBehavior="history"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: true,
@@ -83,6 +84,11 @@ const ProfilePlaceholder = ({ navigation }) => {
   
   return (
     <View style={styles.placeholder}>
+
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.placeholderGoBackButton}>
+        <Ionicons name="chevron-back" size={26} color={Colors.black} />
+      </TouchableOpacity>
+
       <Ionicons name="person-circle-outline" size={72} color={Colors.primary} />
       <Text style={styles.placeholderTitle}>{user?.name || 'Your Profile'}</Text>
       <Text style={styles.placeholderSub}>Email: {user?.email}</Text>
@@ -147,6 +153,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 32,
+  },
+  placeholderGoBackButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.neutral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
   },
   placeholderTitle: {
     fontSize: Typography.xxl,

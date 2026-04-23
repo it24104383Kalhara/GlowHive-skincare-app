@@ -141,7 +141,7 @@ const AddProductScreen = ({ navigation }) => {
           <Ionicons name="chevron-back" size={26} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <View style={styles.avatarCircle}>
             <Ionicons name="person-outline" size={18} color={Colors.primary} />
           </View>

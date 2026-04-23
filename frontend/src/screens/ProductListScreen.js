@@ -76,7 +76,7 @@ const ProductListScreen = ({ navigation }) => {
         <Text style={styles.headerLogo}>Glow Hive Skincare</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <CartBadgeIcon />
-          <TouchableOpacity style={{ marginLeft: Spacing.sm }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginLeft: Spacing.sm }}>
             <View style={styles.avatarCircle}>
               <Ionicons name="person-outline" size={18} color={Colors.primary} />
             </View>
