@@ -103,8 +103,10 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    height: '100%',
     fontSize: Typography.lg,
     color: Colors.black,
+    paddingVertical: 0,
   },
   eyeIcon: {
     padding: Spacing.sm,

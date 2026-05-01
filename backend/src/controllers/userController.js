@@ -7,10 +7,12 @@ const jwt = require('jsonwebtoken');
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
+  console.log(`Registration attempt: ${email}`);
 
   const userExists = await User.findOne({ email });
 
   if (userExists) {
+    console.log(`Registration failed: User ${email} already exists`);
     res.status(400);
     throw new Error('User already exists');
   }
@@ -22,6 +24,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
+    console.log(`Registration successful: ${email}`);
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -30,6 +33,7 @@ const registerUser = asyncHandler(async (req, res) => {
       token: generateToken(user._id),
     });
   } else {
+    console.log(`Registration failed: Invalid user data for ${email}`);
     res.status(400);
     throw new Error('Invalid user data');
   }

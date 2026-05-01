@@ -17,6 +17,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Request logger
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Glow Hive API' });
@@ -35,6 +41,7 @@ app.use('/uploads', express.static(path.join(dirname, 'uploads')));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
+  console.error('API Error:', err);
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode).json({
     success: false,
