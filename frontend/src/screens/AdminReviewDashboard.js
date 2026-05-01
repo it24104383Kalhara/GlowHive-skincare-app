@@ -15,7 +15,7 @@ import { AuthContext } from '../contexts/AuthContext';
 const StarDisplay = ({ rating }) => (
   <View style={styles.starRow}>
     {[1, 2, 3, 4, 5].map((s) => (
-      <Ionicons key={s} name={s <= rating ? 'star' : 'star-outline'} size={11} color={s <= rating ? '#FFB800' : '#ccc'} style={{ marginRight: 1 }} />
+      <Ionicons key={s} name={s <= rating ? 'star' : 'star-outline'} size={11} color={s <= rating ? Colors.rating : Colors.border} style={{ marginRight: 1 }} />
     ))}
   </View>
 );

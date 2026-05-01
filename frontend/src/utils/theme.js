@@ -18,6 +18,7 @@ export const Colors = {
   success: '#4CAF50',
   error: '#C0392B',
   warning: '#E8A838',
+  rating: '#FFB800',
   cardBg: '#FFFFFF',
   inputBg: '#F2F0ED',
   overlay: 'rgba(45, 75, 67, 0.85)',

@@ -21,7 +21,7 @@ const ReviewList = ({ reviews, onEdit, onDelete, currentUser }) => {
           key={i}
           name={i <= rating ? 'star' : 'star-outline'}
           size={14}
-          color={Colors.tertiary}
+          color={i <= rating ? Colors.rating : Colors.tertiaryLight}
         />
       );
     }

@@ -131,7 +131,7 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
             <Ionicons
               name={star <= rating ? 'star' : 'star-outline'}
               size={32}
-              color={Colors.tertiary}
+              color={star <= rating ? Colors.rating : Colors.tertiaryLight}
               style={{ marginRight: 8 }}
             />
           </TouchableOpacity>
