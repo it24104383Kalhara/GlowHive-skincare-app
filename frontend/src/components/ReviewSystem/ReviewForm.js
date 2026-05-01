@@ -156,8 +156,15 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
           ) : beforeImage ? (
             <View style={styles.previewContainer}>
               <Image
-                source={{ uri: beforeImage.startsWith('http') ? beforeImage : `${BASE_SERVER_URL}${beforeImage}` }}
+                source={{ 
+                  uri: (() => {
+                    if (beforeImage.startsWith('http')) return beforeImage;
+                    const cleanPath = beforeImage.startsWith('/') ? beforeImage.substring(1) : beforeImage;
+                    return `${BASE_SERVER_URL}/${cleanPath}?t=${Date.now()}`;
+                  })()
+                }}
                 style={styles.previewImage}
+                resizeMode="cover"
               />
               <View style={styles.changeBadge}>
                 <Text style={styles.changeText}>BEFORE</Text>
@@ -177,8 +184,15 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
           ) : afterImage ? (
             <View style={styles.previewContainer}>
               <Image
-                source={{ uri: afterImage.startsWith('http') ? afterImage : `${BASE_SERVER_URL}${afterImage}` }}
+                source={{ 
+                  uri: (() => {
+                    if (afterImage.startsWith('http')) return afterImage;
+                    const cleanPath = afterImage.startsWith('/') ? afterImage.substring(1) : afterImage;
+                    return `${BASE_SERVER_URL}/${cleanPath}?t=${Date.now()}`;
+                  })()
+                }}
                 style={styles.previewImage}
+                resizeMode="cover"
               />
               <View style={styles.changeBadge}>
                 <Text style={styles.changeText}>AFTER</Text>

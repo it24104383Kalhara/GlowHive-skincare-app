@@ -178,7 +178,15 @@ const AdminReviewDashboard = ({ navigation }) => {
                   {(item.beforeImage || item.image) && (
                     <View style={styles.imageBox}>
                       <Image
-                        source={{ uri: (() => { const img = item.beforeImage || item.image; return img.startsWith('http') ? img : `${BASE_SERVER_URL}${img}`; })() }}
+                        source={{ 
+                          uri: (() => { 
+                            const img = item.beforeImage || item.image; 
+                            if (!img) return null;
+                            if (img.startsWith('http')) return img; 
+                            const cleanPath = img.startsWith('/') ? img.substring(1) : img;
+                            return `${BASE_SERVER_URL}/${cleanPath}?t=${item.updatedAt || Date.now()}`; 
+                          })() 
+                        }}
                         style={styles.thumb}
                         resizeMode="cover"
                       />
@@ -188,7 +196,14 @@ const AdminReviewDashboard = ({ navigation }) => {
                   {item.afterImage && (
                     <View style={styles.imageBox}>
                       <Image
-                        source={{ uri: item.afterImage.startsWith('http') ? item.afterImage : `${BASE_SERVER_URL}${item.afterImage}` }}
+                        source={{ 
+                          uri: (() => {
+                            if (!item.afterImage) return null;
+                            if (item.afterImage.startsWith('http')) return item.afterImage;
+                            const cleanPath = item.afterImage.startsWith('/') ? item.afterImage.substring(1) : item.afterImage;
+                            return `${BASE_SERVER_URL}/${cleanPath}?t=${item.updatedAt || Date.now()}`;
+                          })()
+                        }}
                         style={styles.thumb}
                         resizeMode="cover"
                       />

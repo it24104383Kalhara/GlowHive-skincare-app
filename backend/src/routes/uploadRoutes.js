@@ -8,9 +8,9 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename(req, file, cb) {
-    // The frontend formats the name as: sanitized-product-name-123456789.jpg
-    // We can safely trust file.originalname since we generate it in productService.js
-    cb(null, file.originalname);
+    // Generate a unique name: timestamp-random-originalName
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
   },
 });
 
@@ -35,7 +35,9 @@ const upload = multer({
 
 router.post('/', upload.single('image'), (req, res) => {
   if (req.file) {
-    res.send(`/${req.file.path.replace(/\\\\/g, '/')}`);
+    // Ensure we return a forward-slash path for the URL
+    const formattedPath = `/${req.file.path.replace(/\\/g, '/')}`;
+    res.send(formattedPath);
   } else {
     res.status(400).send('No file uploaded');
   }

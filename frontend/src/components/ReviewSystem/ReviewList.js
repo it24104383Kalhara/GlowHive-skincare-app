@@ -54,9 +54,8 @@ const ReviewList = ({ reviews, onEdit, onDelete, currentUser }) => {
                           const img = item.beforeImage || item.image;
                           if (!img) return null;
                           if (img.startsWith('http')) return img;
-                          // Ensure no double slashes and correct base URL
                           const cleanPath = img.startsWith('/') ? img.substring(1) : img;
-                          return `${BASE_SERVER_URL}/${cleanPath}`;
+                          return `${BASE_SERVER_URL}/${cleanPath}?t=${item.updatedAt || Date.now()}`;
                         })()
                       }}
                       style={styles.resultImage}
@@ -71,9 +70,12 @@ const ReviewList = ({ reviews, onEdit, onDelete, currentUser }) => {
                   <View style={styles.imageBox}>
                     <Image
                       source={{ 
-                        uri: item.afterImage.startsWith('http') 
-                          ? item.afterImage 
-                          : `${BASE_SERVER_URL}/${item.afterImage.startsWith('/') ? item.afterImage.substring(1) : item.afterImage}`
+                        uri: (() => {
+                          if (!item.afterImage) return null;
+                          if (item.afterImage.startsWith('http')) return item.afterImage;
+                          const cleanPath = item.afterImage.startsWith('/') ? item.afterImage.substring(1) : item.afterImage;
+                          return `${BASE_SERVER_URL}/${cleanPath}?t=${item.updatedAt || Date.now()}`;
+                        })()
                       }}
                       style={styles.resultImage}
                       resizeMode="cover"
