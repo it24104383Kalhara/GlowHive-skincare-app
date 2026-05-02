@@ -1,0 +1,124 @@
+erDiagram
+    USER {
+        ObjectId _id PK
+        String name
+        String email
+        String password
+        Boolean isAdmin
+        Date createdAt
+        Date updatedAt
+    }
+
+    PRODUCT {
+        ObjectId _id PK
+        ObjectId user FK "Reference to USER"
+        String title
+        String category "Enum: SERUMS, OILS, CLEANSERS, etc."
+        Number price
+        Number stock
+        String[] ingredients
+        String[] skinTypeTags
+        String imageUrl
+        Date createdAt
+        Date updatedAt
+    }
+
+    ORDER {
+        ObjectId _id PK
+        ObjectId user FK "Reference to USER"
+        String paymentMethod "Enum: card, cod"
+        String paymentStatus "Enum: pending, paid, failed"
+        String cardLastFour
+        Number subtotal
+        Number shippingFee
+        Number totalAmount
+        String orderStatus "Enum: processing, shipped, delivered, cancelled"
+        Object shippingInfo "Nested: fullName, contactNumber, address, postalCode"
+        Date createdAt
+        Date updatedAt
+    }
+
+    ORDER_ITEM {
+        ObjectId product FK "Reference to PRODUCT"
+        String title
+        Number price
+        Number quantity
+        String imageUrl
+    }
+
+    REVIEW {
+        ObjectId _id PK
+        ObjectId user FK "Reference to USER"
+        ObjectId product FK "Reference to PRODUCT"
+        String name
+        Number rating
+        String comment
+        String beforeImage
+        String afterImage
+        Date createdAt
+        Date updatedAt
+    }
+
+    PROMOTION {
+        ObjectId _id PK
+        String title
+        String description
+        String code "Unique, Sparse"
+        Number discountValue
+        String type "Enum: banner, coupon"
+        String targetCategory "Default: All"
+        Date expiryDate
+        Boolean isActive
+        Date createdAt
+        Date updatedAt
+    }
+
+    CONVERSATION {
+        ObjectId _id PK
+        ObjectId customerId FK "Reference to USER"
+        ObjectId sellerId FK "Reference to USER"
+        ObjectId productId FK "Reference to PRODUCT"
+        String productTitle
+        String lastMessage
+        Date createdAt
+        Date updatedAt
+    }
+
+    MESSAGE {
+        ObjectId _id PK
+        ObjectId conversationId FK "Reference to CONVERSATION"
+        ObjectId senderId FK "Reference to USER"
+        String text
+        Boolean read
+        Date createdAt
+        Date updatedAt
+    }
+
+    SKIN_LOG {
+        ObjectId _id PK
+        ObjectId user FK "Reference to USER"
+        Date date
+        String hydration "Enum: Dry, Normal, Oily"
+        String acne "Enum: None, Mild, Moderate, Severe"
+        String[] productsUsed
+        String notes
+        String imageUrl
+        Date createdAt
+        Date updatedAt
+    }
+
+    USER ||--o{ PRODUCT : "creates (Admin)"
+    USER ||--o{ REVIEW : "writes"
+    USER ||--o{ ORDER : "places"
+    USER ||--o{ SKIN_LOG : "logs"
+    PRODUCT ||--o{ REVIEW : "has"
+    ORDER ||--o{ ORDER_ITEM : "contains (embedded)"
+    PRODUCT ||--o{ ORDER_ITEM : "included in"
+    
+    USER ||--o{ CONVERSATION : "participates as customer/seller"
+    PRODUCT ||--o{ CONVERSATION : "discussed in"
+    CONVERSATION ||--o{ MESSAGE : "contains"
+    USER ||--o{ MESSAGE : "sends"
+    
+    %% Implicit Relationship based on targetCategory
+    PROMOTION |o--o{ PRODUCT : "applies to (via targetCategory)"
