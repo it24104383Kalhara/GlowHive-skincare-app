@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const path = require('path');
 
 // Connect to MongoDB
@@ -33,6 +34,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Make uploads folder static so images are publicly accessible
 const dirname = path.resolve();
@@ -53,6 +55,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  const mode = process.env.NODE_ENV || 'development';
+  console.log(`Server is running in ${mode} mode on port ${PORT}`);
 });
 

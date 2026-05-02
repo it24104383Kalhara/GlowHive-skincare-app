@@ -16,6 +16,10 @@ import DeleteProductListScreen from '../screens/DeleteProductListScreen';
 import CartScreen from '../screens/CartScreen';
 import ReviewFeedScreen from '../screens/ReviewFeedScreen';
 import AdminReviewDashboard from '../screens/AdminReviewDashboard';
+import CheckoutScreen from '../screens/CheckoutScreen';
+import OrderConfirmationScreen from '../screens/OrderConfirmationScreen';
+import MyOrdersScreen from '../screens/MyOrdersScreen';
+import AdminOrdersScreen from '../screens/AdminOrdersScreen';
 import { Colors, Typography, Shadow, Spacing, Radius } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
@@ -23,9 +27,6 @@ import { CartContext } from '../contexts/CartContext';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// ─────────────────────────────────────────────
-// Bottom Tab Navigator (Main App Shell)
-// ─────────────────────────────────────────────
 const MainTabs = () => {
   const { cartCount } = useContext(CartContext);
 
@@ -77,7 +78,11 @@ const MainTabs = () => {
                   color={color} 
                 />
               </View>
-              
+              {route.name === 'Catalogue' && cartCount > 0 && (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>{cartCount}</Text>
+                </View>
+              )}
             </View>
           );
         },
@@ -91,9 +96,6 @@ const MainTabs = () => {
   );
 };
 
-// ─────────────────────────────────────────────
-// Placeholder screen for Profile
-// ─────────────────────────────────────────────
 const ProfilePlaceholder = ({ navigation }) => {
   const { user, logout } = useContext(AuthContext);
   
@@ -107,15 +109,24 @@ const ProfilePlaceholder = ({ navigation }) => {
       <Ionicons name="person-circle-outline" size={72} color={Colors.primary} />
       <Text style={styles.placeholderTitle}>{user?.name || 'Your Profile'}</Text>
       <Text style={styles.placeholderSub}>Email: {user?.email}</Text>
-      <Text style={styles.placeholderSub}>Order history, skin diary & support will live here.</Text>
-      {user?.isAdmin && (
+      
+      {user?.isAdmin ? (
         <TouchableOpacity
           style={[styles.logoutBtn, { borderColor: Colors.black, marginBottom: 12 }]}
           onPress={() => navigation.navigate('AdminReviews')}
         >
           <Text style={[styles.logoutText, { color: Colors.black }]}>ADMIN REVIEW DASHBOARD</Text>
         </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.ordersBtn}
+          onPress={() => navigation.navigate('MyOrders')}
+        >
+          <Ionicons name="receipt-outline" size={20} color={Colors.white} style={{ marginRight: 8 }} />
+          <Text style={styles.ordersBtnText}>MY ORDERS</Text>
+        </TouchableOpacity>
       )}
+
       <TouchableOpacity
         style={styles.logoutBtn}
         onPress={logout}
@@ -126,9 +137,6 @@ const ProfilePlaceholder = ({ navigation }) => {
   );
 };
 
-// ─────────────────────────────────────────────
-// Root Stack Navigator
-// ─────────────────────────────────────────────
 const AppNavigator = () => {
   const { user, loading } = useContext(AuthContext);
 
@@ -141,11 +149,11 @@ const AppNavigator = () => {
   }
 
   return (
-    <Stack.Navigator 
-      screenOptions={{ 
+    <Stack.Navigator
+      screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
-        gestureEnabled: true 
+        gestureEnabled: true
       }}
     >
       {user ? (
@@ -158,6 +166,10 @@ const AppNavigator = () => {
           <Stack.Screen name="DeleteProductList" component={DeleteProductListScreen} />
           <Stack.Screen name="Cart" component={CartScreen} />
           <Stack.Screen name="AdminReviews" component={AdminReviewDashboard} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
+          <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
+          <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
+          <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
         </>
       ) : (
         <>
@@ -168,7 +180,6 @@ const AppNavigator = () => {
     </Stack.Navigator>
   );
 };
-
 
 const styles = StyleSheet.create({
   placeholder: {
@@ -205,6 +216,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 32,
+  },
+  ordersBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    borderRadius: 999,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    marginBottom: 16,
+  },
+  ordersBtnText: {
+    fontSize: 12,
+    letterSpacing: 4,
+    fontWeight: '700',
+    color: Colors.white,
   },
   logoutBtn: {
     borderWidth: 1.5,

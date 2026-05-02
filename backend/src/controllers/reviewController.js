@@ -7,6 +7,8 @@ const Product = require('../models/Product');
 // @access  Private
 const createReview = asyncHandler(async (req, res) => {
   const { rating, comment, beforeImage, afterImage, productId } = req.body;
+  console.log(`[CREATE REVIEW] Received request for product: ${productId}`);
+  console.log(`[CREATE REVIEW] Data: rating=${rating}, comment=${comment}`);
 
   const product = await Product.findById(productId);
 
@@ -17,6 +19,7 @@ const createReview = asyncHandler(async (req, res) => {
     });
 
     if (alreadyReviewed) {
+      console.log(`[CREATE REVIEW] User ${req.user._id} already reviewed product ${productId}`);
       res.status(400);
       throw new Error('Product already reviewed');
     }
@@ -31,6 +34,8 @@ const createReview = asyncHandler(async (req, res) => {
       afterImage,
     });
 
+    console.log(`[CREATE REVIEW] Review created: ${review._id}`);
+
     // Update product average rating and number of reviews
     const reviews = await Review.find({ product: productId });
     product.numReviews = reviews.length;
@@ -38,9 +43,11 @@ const createReview = asyncHandler(async (req, res) => {
       reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
 
     await product.save();
+    console.log(`[CREATE REVIEW] Product stats updated. Num: ${product.numReviews}, Rating: ${product.rating}`);
 
     res.status(201).json(review);
   } else {
+    console.log(`[CREATE REVIEW] Product not found: ${productId}`);
     res.status(404);
     throw new Error('Product not found');
   }

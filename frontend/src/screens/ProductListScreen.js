@@ -27,7 +27,6 @@ const ProductListScreen = ({ navigation }) => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState([]);
   const [menuVisible, setMenuVisible] = useState(false);
 
   const { user } = useContext(AuthContext);

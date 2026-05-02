@@ -39,7 +39,6 @@ const MOCK_PRODUCT = {
   imageUrl: null,
 };
 
-// Mock data removed in favor of real API integration
 const StarRating = ({ rating, size = 14 }) => {
   return (
     <View style={{ flexDirection: 'row', gap: 2 }}>
@@ -94,69 +93,13 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
   const loadReviews = async () => {
     try {
+      console.log(`[ProductDetail] Loading reviews for product: ${product._id}`);
       const data = await reviewService.getProductReviews(product._id);
+      console.log(`[ProductDetail] Received ${data.length} reviews`);
       setReviews(data);
     } catch (error) {
       console.error('Failed to load reviews', error);
     }
-  };
-
-  const handleReviewSubmit = async (reviewData) => {
-    try {
-      if (editingReview) {
-        await reviewService.updateReview(editingReview._id, reviewData, user.token);
-      } else {
-        await reviewService.createReview(reviewData, user.token);
-      }
-      setEditingReview(null);
-      setShowForm(false);
-      loadReviews();
-      loadProduct(); // Refresh product avg rating
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to save review.');
-    }
-  };
-
-  const handleReviewDelete = async (reviewId) => {
-    const executeDelete = async () => {
-      try {
-        await reviewService.deleteReview(reviewId, user.token);
-        loadReviews();
-        loadProduct();
-      } catch (error) {
-        console.error('Delete error:', error);
-        if (Platform.OS === 'web') {
-          window.alert(error.response?.data?.message || 'The archive could not be updated. Please try again.');
-        } else {
-          Alert.alert('Delete Failed', error.response?.data?.message || 'The archive could not be updated.');
-        }
-      }
-    };
-
-    if (Platform.OS === 'web') {
-      // Temporarily bypassing window.confirm to check if the browser is blocking it
-      window.alert('Processing deletion request...');
-      executeDelete();
-    } else {
-      Alert.alert(
-        'Delete Review',
-        'Are you sure you want to remove this result from the archive?',
-        [
-          { text: 'CANCEL', style: 'cancel' },
-          { 
-            text: 'DELETE', 
-            style: 'destructive',
-            onPress: executeDelete
-          }
-        ]
-      );
-    }
-  };
-
-  const handleReviewEdit = (review) => {
-    setEditingReview(review);
-    setShowForm(true);
   };
 
   const loadProduct = async () => {
@@ -178,6 +121,66 @@ const ProductDetailScreen = ({ route, navigation }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleReviewSubmit = async (reviewData) => {
+    try {
+      console.log('[ProductDetail] Submitting review data:', reviewData);
+      if (editingReview) {
+        await reviewService.updateReview(editingReview._id, reviewData, user.token);
+        console.log('[ProductDetail] Review updated successfully');
+      } else {
+        await reviewService.createReview(reviewData, user.token);
+        console.log('[ProductDetail] Review created successfully');
+      }
+      setEditingReview(null);
+      setShowForm(false);
+      await loadReviews();
+      await loadProduct(); // Refresh product avg rating
+    } catch (error) {
+      console.error('[ProductDetail] Review submission error:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Failed to save review.');
+    }
+  };
+
+  const handleReviewDelete = async (reviewId) => {
+    const executeDelete = async () => {
+      try {
+        await reviewService.deleteReview(reviewId, user.token);
+        loadReviews();
+        loadProduct();
+      } catch (error) {
+        console.error('Delete error:', error);
+        if (Platform.OS === 'web') {
+          window.alert(error.response?.data?.message || 'The archive could not be updated. Please try again.');
+        } else {
+          Alert.alert('Delete Failed', error.response?.data?.message || 'The archive could not be updated.');
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      window.alert('Processing deletion request...');
+      executeDelete();
+    } else {
+      Alert.alert(
+        'Delete Review',
+        'Are you sure you want to remove this result from the archive?',
+        [
+          { text: 'CANCEL', style: 'cancel' },
+          { 
+            text: 'DELETE', 
+            style: 'destructive',
+            onPress: executeDelete
+          }
+        ]
+      );
+    }
+  };
+
+  const handleReviewEdit = (review) => {
+    setEditingReview(review);
+    setShowForm(true);
   };
 
   const handleAddToCart = () => {

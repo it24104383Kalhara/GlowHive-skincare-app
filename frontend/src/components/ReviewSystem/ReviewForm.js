@@ -103,8 +103,10 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
     setSubmitting(true);
     try {
       // Send both images. If it's legacy data, beforeImage will hold the original 'image' URL.
-      await onSubmit({ rating, comment, beforeImage, afterImage, productId });
+      const success = await onSubmit({ rating, comment, beforeImage, afterImage, productId });
       
+      // If we got here, parent didn't throw. 
+      // Note: ProductDetailScreen doesn't return anything, so it's always 'success' if no error.
       if (!initialData) {
         setRating(5);
         setComment('');
@@ -113,7 +115,8 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
       }
     } catch (error) {
       console.error('Submit error:', error);
-      // Error is usually handled by the parent component alert
+      // Parent handleReviewSubmit already shows an alert.
+      // We don't reset fields so the user can try again.
     } finally {
       setSubmitting(false);
     }

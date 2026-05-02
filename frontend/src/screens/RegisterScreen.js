@@ -77,6 +77,8 @@ const RegisterScreen = ({ navigation }) => {
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
               <Ionicons name="arrow-back" size={24} color={Colors.black} />
             </TouchableOpacity>
+            <Text style={styles.topBarTitle}>THE CLINICAL EDITORIAL</Text>
+            <View style={{ width: 24 }} />
           </View>
 
           {/* Hero Header */}
@@ -136,11 +138,9 @@ const RegisterScreen = ({ navigation }) => {
             </View>
           </View>
           
-          <View style={styles.footer}>
-            <View style={styles.heroImageStrip}>
-              <View style={styles.heroImagePlaceholder}>
-                <Text style={styles.heroImageLabel}>✦ JOIN THE HIVE</Text>
-              </View>
+          <View style={styles.heroImageStrip}>
+            <View style={styles.heroImagePlaceholder}>
+              <Text style={styles.heroImageLabel}>✦ JOIN THE HIVE</Text>
             </View>
           </View>
         </ScrollView>

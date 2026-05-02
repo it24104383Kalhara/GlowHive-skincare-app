@@ -70,6 +70,16 @@ const SideMenu = ({ visible, onClose, navigation }) => {
             </View>
              <Ionicons name="chevron-forward" size={20} color={Colors.secondary} />
           </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => { onClose(); navigation.navigate('AdminOrders'); }}>
+            <View style={[styles.imageBox, { backgroundColor: '#E0F7FA' }]}>
+              <Ionicons name="receipt-outline" size={28} color="#00838F" />
+            </View>
+            <View style={styles.info}>
+              <Text style={styles.title} numberOfLines={1}>All Orders</Text>
+            </View>
+             <Ionicons name="chevron-forward" size={20} color={Colors.secondary} />
+          </TouchableOpacity>
         </Animated.View>
         <TouchableOpacity style={styles.overlayTouch} activeOpacity={1} onPress={onClose} />
       </View>

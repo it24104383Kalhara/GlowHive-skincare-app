@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.md,
   },
-    headerBtn: {
+  headerBtn: {
     width: 36,
     height: 36,
     borderRadius: Radius.round,
