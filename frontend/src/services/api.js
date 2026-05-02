@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // For Expo Go on physical device, use your local IP: 192.168.250.36
-export const BASE_SERVER_URL = 'http://192.168.166.36:5000';
+export const BASE_SERVER_URL = 'http://192.168.114.36:5000';
 const API_URL = `${BASE_SERVER_URL}/api`;
 
 const api = axios.create({
