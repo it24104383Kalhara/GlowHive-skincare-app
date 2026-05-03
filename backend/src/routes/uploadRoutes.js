@@ -8,39 +8,40 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename(req, file, cb) {
-    // Generate a unique name: timestamp-random-originalName
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
   },
 });
 
-function checkFileType(file, cb) {
-  const filetypes = /jpg|jpeg|png/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    return cb(null, true);
-  } else {
-    cb('Images only!');
-  }
-}
+// ✅ Accept all file types (images + documents)
+const fileFilter = (req, file, cb) => {
+  cb(null, true); // Allow everything (you can add restrictions later if needed)
+};
 
 const upload = multer({
   storage,
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+  fileFilter,
 });
 
-router.post('/', upload.single('image'), (req, res) => {
-  if (req.file) {
-    // Ensure we return a forward-slash path for the URL
-    const formattedPath = `/${req.file.path.replace(/\\/g, '/')}`;
-    res.send(formattedPath);
-  } else {
-    res.status(400).send('No file uploaded');
-  }
+// ✅ Upload endpoint – field name = "file"
+router.post('/', (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error('Upload error:', err.message);
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ error: `Multer error: ${err.message}` });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    if (!req.file) {
+      console.error('No file received. Body keys:', Object.keys(req.body));
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    console.log('File uploaded successfully:', req.file.filename);
+    const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    res.json({ url });
+  });
 });
 
 module.exports = router;
