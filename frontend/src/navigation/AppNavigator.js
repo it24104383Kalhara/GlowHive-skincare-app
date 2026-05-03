@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react'; // ✅ ADDED useState, useEffect
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -19,6 +19,9 @@ import AdminReviewDashboard from '../screens/AdminReviewDashboard';
 import { Colors, Typography, Shadow, Spacing, Radius } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
+import InboxScreen from '../screens/InboxScreen';
+import ChatScreen from '../screens/ChatScreen';
+import { getUnreadCount, subscribeToUnread } from '../services/unreadService';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,6 +31,15 @@ const Tab = createBottomTabNavigator();
 // ─────────────────────────────────────────────
 const MainTabs = () => {
   const { cartCount } = useContext(CartContext);
+  
+  // ✅ ADDED – state for unread badge
+  const [unreadTotal, setUnreadTotal] = useState(getUnreadCount());
+
+  // ✅ ADDED – subscribe to unread count changes
+  useEffect(() => {
+    const unsubscribe = subscribeToUnread(setUnreadTotal);
+    return unsubscribe;
+  }, []);
 
   return (
     <Tab.Navigator
@@ -62,6 +74,7 @@ const MainTabs = () => {
             Home: focused ? 'home' : 'home-outline',
             Catalogue: focused ? 'grid' : 'grid-outline',
             Reviews: focused ? 'chatbubbles' : 'chatbubbles-outline',
+            Inbox: focused ? 'chatbubbles' : 'chatbubbles-outline',
             Profile: focused ? 'person' : 'person-outline',
           };
           
@@ -77,7 +90,14 @@ const MainTabs = () => {
                   color={color} 
                 />
               </View>
-              
+              {/* ✅ ADDED – badge for Inbox tab */}
+              {route.name === 'Inbox' && unreadTotal > 0 && (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>
+                    {unreadTotal > 9 ? '9+' : unreadTotal}
+                  </Text>
+                </View>
+              )}
             </View>
           );
         },
@@ -86,6 +106,7 @@ const MainTabs = () => {
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'HOME' }} />
       <Tab.Screen name="Catalogue" component={ProductListScreen} options={{ tabBarLabel: 'ARCHIVE' }} />
       <Tab.Screen name="Reviews" component={ReviewFeedScreen} options={{ tabBarLabel: 'REVIEWS' }} />
+      <Tab.Screen name="Inbox" component={InboxScreen} options={{ tabBarLabel: 'INBOX' }} />
       <Tab.Screen name="Profile" component={ProfilePlaceholder} options={{ tabBarLabel: 'PROFILE' }} />
     </Tab.Navigator>
   );
@@ -158,6 +179,7 @@ const AppNavigator = () => {
           <Stack.Screen name="DeleteProductList" component={DeleteProductListScreen} />
           <Stack.Screen name="Cart" component={CartScreen} />
           <Stack.Screen name="AdminReviews" component={AdminReviewDashboard} />
+          <Stack.Screen name="Chat" component={ChatScreen} /> 
         </>
       ) : (
         <>
@@ -247,8 +269,9 @@ const styles = StyleSheet.create({
   activeIconContainer: {
     backgroundColor: Colors.white,
     ...Shadow.sm,
-    transform: [{ translateY: -4 }], // Subtle lift
+    transform: [{ translateY: -4 }],
   },
+  
 });
 
 export default AppNavigator;
