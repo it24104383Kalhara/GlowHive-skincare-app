@@ -9,7 +9,7 @@ const getConversations = asyncHandler(async (req, res) => {
   console.log('User ID:', userId);
   const isAdmin = req.user.isAdmin || (userId === ADMIN_ID);
   console.log('Is admin?', isAdmin);
-  
+
   let query;
   if (isAdmin) {
     query = { sellerId: ADMIN_ID };
@@ -17,12 +17,12 @@ const getConversations = asyncHandler(async (req, res) => {
     query = { customerId: userId };
   }
   console.log('Query:', query);
-  
+
   const conversations = await Conversation.find(query)
     .populate('customerId', 'name email')
     .populate('sellerId', 'name email');
   console.log('Found conversations:', conversations.length);
-  
+
   res.json(conversations);
 });
 
@@ -73,7 +73,7 @@ const getMessages = asyncHandler(async (req, res) => {
   console.log('Seller ID:', conversation.sellerId.toString());
 
   const isParticipant = conversation.customerId.toString() === userId.toString() ||
-                        conversation.sellerId.toString() === userId.toString();
+    conversation.sellerId.toString() === userId.toString();
   console.log('Is participant?', isParticipant);
   if (!isParticipant) {
     res.status(403);

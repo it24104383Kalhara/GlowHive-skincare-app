@@ -8,8 +8,8 @@ const getBaseUrl = () => {
   if (Platform.OS === 'web') {
     return 'http://localhost:5001'; // Works perfectly for web browser testing
   }
-  // For Expo Go on mobile, replace this with your computer's CURRENT local Wi-Fi IP address
-  return 'http://192.168.1.14:5001'; 
+  // Updated to match your computer's CURRENT local Wi-Fi IP address
+  return 'http://192.168.82.168:5001';
 };
 
 export const BASE_SERVER_URL = getBaseUrl();

@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 const Review = require('../models/Review');
 const Product = require('../models/Product');
 
@@ -7,6 +8,11 @@ const Product = require('../models/Product');
 // @access  Private
 const createReview = asyncHandler(async (req, res) => {
   const { rating, comment, beforeImage, afterImage, productId } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    res.status(404);
+    throw new Error('Product not found (Invalid ID)');
+  }
 
   const product = await Product.findById(productId);
 
@@ -46,10 +52,15 @@ const createReview = asyncHandler(async (req, res) => {
   }
 });
 
+
 // @desc    Get reviews for a product
 // @route   GET /api/reviews/:productId
 // @access  Public
 const getProductReviews = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.productId)) {
+    return res.json([]); // Return empty array for mock/invalid products to prevent 500 error
+  }
+
   const reviews = await Review.find({ product: req.params.productId }).sort({
     createdAt: -1,
   });
@@ -127,8 +138,8 @@ const deleteReview = asyncHandler(async (req, res) => {
     if (product) {
       const reviews = await Review.find({ product: productId });
       product.numReviews = reviews.length;
-      product.rating = reviews.length > 0 
-        ? reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length 
+      product.rating = reviews.length > 0
+        ? reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length
         : 0;
       await product.save();
     }
@@ -147,7 +158,7 @@ const getAllReviews = asyncHandler(async (req, res) => {
   const reviews = await Review.find({})
     .populate('product', 'title imageUrl')
     .sort({ createdAt: -1 });
-  
+
   // Only return reviews that have a valid linked product
   const validReviews = reviews.filter(r => r.product !== null);
   res.json(validReviews);

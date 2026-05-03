@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const fs = require('fs');
 const path = require('path');
@@ -11,10 +12,16 @@ const getProducts = asyncHandler(async (req, res) => {
   res.json(products);
 });
 
+
 // @desc    Fetch single product
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(404);
+    throw new Error('Product not found (Invalid ID)');
+  }
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
