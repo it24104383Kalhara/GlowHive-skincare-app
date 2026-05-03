@@ -1,5 +1,10 @@
 {
-  "plugins": [
-    "expo-font"
-  ]
+  "expo": {
+    "name": "glowhive-frontend",
+    "slug": "glowhive-frontend",
+    "version": "1.0.0",
+    "plugins": [
+      "expo-font"
+    ]
+  }
 }

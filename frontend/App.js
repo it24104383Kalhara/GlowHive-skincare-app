@@ -5,6 +5,29 @@ import { StatusBar } from 'expo-status-bar';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { CartProvider } from './src/contexts/CartContext';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  '"shadow*" style props are deprecated',
+  'props.pointerEvents is deprecated'
+]);
+
+// Silence warnings from third-party libraries in the console
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (args[0] && typeof args[0] === 'string' && (args[0].includes('"shadow*"') || args[0].includes('pointerEvents'))) {
+    return;
+  }
+  originalWarn(...args);
+};
+
+const originalError = console.error;
+console.error = (...args) => {
+  if (args[0] && typeof args[0] === 'string' && (args[0].includes('"shadow*"') || args[0].includes('pointerEvents'))) {
+    return;
+  }
+  originalError(...args);
+};
 
 export default function App() {
   return (
