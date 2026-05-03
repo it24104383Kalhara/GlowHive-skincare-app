@@ -116,7 +116,7 @@ const ReviewFeedScreen = ({ navigation }) => {
                         source={{ 
                           uri: (() => {
                             const img = item.beforeImage || item.image;
-                            if (!img) return null;
+                            if (!img || typeof img !== 'string') return null;
                             if (img.startsWith('http')) return img;
                             const cleanPath = img.startsWith('/') ? img.substring(1) : img;
                             return `${BASE_SERVER_URL}/${cleanPath}`;
@@ -134,9 +134,12 @@ const ReviewFeedScreen = ({ navigation }) => {
                     <View style={styles.imageBox}>
                       <Image
                         source={{ 
-                          uri: item.afterImage.startsWith('http') 
-                            ? item.afterImage 
-                            : `${BASE_SERVER_URL}/${item.afterImage.startsWith('/') ? item.afterImage.substring(1) : item.afterImage}`
+                          uri: (() => {
+                            if (!item.afterImage || typeof item.afterImage !== 'string') return null;
+                            if (item.afterImage.startsWith('http')) return item.afterImage;
+                            const cleanPath = item.afterImage.startsWith('/') ? item.afterImage.substring(1) : item.afterImage;
+                            return `${BASE_SERVER_URL}/${cleanPath}`;
+                          })()
                         }}
                         style={styles.resultImage}
                         resizeMode="cover"

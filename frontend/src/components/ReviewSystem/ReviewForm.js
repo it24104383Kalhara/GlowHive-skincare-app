@@ -74,8 +74,10 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
         },
       };
       const { data } = await api.post('/upload', formData, config);
-      if (type === 'before') setBeforeImage(data);
-      else setAfterImage(data);
+      const savedPath = data.filePath || (typeof data === 'string' ? data : data.url);
+      
+      if (type === 'before') setBeforeImage(savedPath);
+      else setAfterImage(savedPath);
     } catch (error) {
       console.error(error);
       Alert.alert('Upload Failed', 'The image could not be archived. Please check your connection.');
@@ -156,7 +158,7 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
         <TouchableOpacity style={styles.imagePicker} onPress={() => pickImage('before')} disabled={uploadingBefore}>
           {uploadingBefore ? (
             <ActivityIndicator color={Colors.primary} />
-          ) : beforeImage ? (
+          ) : (beforeImage && typeof beforeImage === 'string') ? (
             <View style={styles.previewContainer}>
               <Image
                 source={{ 
@@ -184,7 +186,7 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
         <TouchableOpacity style={styles.imagePicker} onPress={() => pickImage('after')} disabled={uploadingAfter}>
           {uploadingAfter ? (
             <ActivityIndicator color={Colors.primary} />
-          ) : afterImage ? (
+          ) : (afterImage && typeof afterImage === 'string') ? (
             <View style={styles.previewContainer}>
               <Image
                 source={{ 

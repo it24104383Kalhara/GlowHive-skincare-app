@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react'; // ✅ ADDED useState, useEffect
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -23,12 +23,24 @@ import AdminOrdersScreen from '../screens/AdminOrdersScreen';
 import { Colors, Typography, Shadow, Spacing, Radius } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
+import InboxScreen from '../screens/InboxScreen';
+import ChatScreen from '../screens/ChatScreen';
+import { getUnreadCount, subscribeToUnread } from '../services/unreadService';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const MainTabs = () => {
   const { cartCount } = useContext(CartContext);
+  
+  // ✅ ADDED – state for unread badge
+  const [unreadTotal, setUnreadTotal] = useState(getUnreadCount());
+
+  // ✅ ADDED – subscribe to unread count changes
+  useEffect(() => {
+    const unsubscribe = subscribeToUnread(setUnreadTotal);
+    return unsubscribe;
+  }, []);
 
   return (
     <Tab.Navigator
@@ -62,7 +74,8 @@ const MainTabs = () => {
           const icons = {
             Home: focused ? 'home' : 'home-outline',
             Catalogue: focused ? 'grid' : 'grid-outline',
-            Reviews: focused ? 'chatbubbles' : 'chatbubbles-outline',
+            Reviews: focused ? 'star' : 'star-outline',
+            Inbox: focused ? 'chatbubbles' : 'chatbubbles-outline',
             Profile: focused ? 'person' : 'person-outline',
           };
           
@@ -78,9 +91,20 @@ const MainTabs = () => {
                   color={color} 
                 />
               </View>
+              
+              {/* Badge for Catalogue (Cart) */}
               {route.name === 'Catalogue' && cartCount > 0 && (
                 <View style={styles.tabBadge}>
                   <Text style={styles.tabBadgeText}>{cartCount}</Text>
+                </View>
+              )}
+
+              {/* Badge for Inbox (Unread Messages) */}
+              {route.name === 'Inbox' && unreadTotal > 0 && (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>
+                    {unreadTotal > 9 ? '9+' : unreadTotal}
+                  </Text>
                 </View>
               )}
             </View>
@@ -91,6 +115,7 @@ const MainTabs = () => {
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'HOME' }} />
       <Tab.Screen name="Catalogue" component={ProductListScreen} options={{ tabBarLabel: 'ARCHIVE' }} />
       <Tab.Screen name="Reviews" component={ReviewFeedScreen} options={{ tabBarLabel: 'REVIEWS' }} />
+      <Tab.Screen name="Inbox" component={InboxScreen} options={{ tabBarLabel: 'INBOX' }} />
       <Tab.Screen name="Profile" component={ProfilePlaceholder} options={{ tabBarLabel: 'PROFILE' }} />
     </Tab.Navigator>
   );
@@ -111,12 +136,20 @@ const ProfilePlaceholder = ({ navigation }) => {
       <Text style={styles.placeholderSub}>Email: {user?.email}</Text>
       
       {user?.isAdmin ? (
-        <TouchableOpacity
-          style={[styles.logoutBtn, { borderColor: Colors.black, marginBottom: 12 }]}
-          onPress={() => navigation.navigate('AdminReviews')}
-        >
-          <Text style={[styles.logoutText, { color: Colors.black }]}>ADMIN REVIEW DASHBOARD</Text>
-        </TouchableOpacity>
+        <View style={{ width: '100%' }}>
+          <TouchableOpacity
+            style={[styles.logoutBtn, { borderColor: Colors.black, marginBottom: 12 }]}
+            onPress={() => navigation.navigate('AdminReviews')}
+          >
+            <Text style={[styles.logoutText, { color: Colors.black }]}>ADMIN REVIEW DASHBOARD</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.logoutBtn, { borderColor: Colors.black, marginBottom: 12 }]}
+            onPress={() => navigation.navigate('AdminOrders')}
+          >
+            <Text style={[styles.logoutText, { color: Colors.black }]}>ADMIN ORDER DASHBOARD</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <TouchableOpacity
           style={styles.ordersBtn}
@@ -170,6 +203,7 @@ const AppNavigator = () => {
           <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
           <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
           <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
+          <Stack.Screen name="Chat" component={ChatScreen} /> 
         </>
       ) : (
         <>
@@ -273,8 +307,9 @@ const styles = StyleSheet.create({
   activeIconContainer: {
     backgroundColor: Colors.white,
     ...Shadow.sm,
-    transform: [{ translateY: -4 }], // Subtle lift
+    transform: [{ translateY: -4 }],
   },
+  
 });
 
 export default AppNavigator;

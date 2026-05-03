@@ -8,46 +8,53 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename(req, file, cb) {
-    // Generate a unique name: timestamp-random-originalName
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
   },
 });
 
-function checkFileType(file, cb) {
-  console.log(`[UPLOAD] Checking file: ${file.originalname} (${file.mimetype})`);
-  const filetypes = /jpg|jpeg|png/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    console.log('[UPLOAD] File type valid');
-    return cb(null, true);
-  } else {
-    console.log(`[UPLOAD] Invalid file type: ext=${extname}, mime=${mimetype}`);
-    cb(new Error('Images only! (jpg, jpeg, png)'));
-  }
-}
-
 const upload = multer({
   storage,
-  fileFilter: function (req, file, cb) {
-    console.log('[UPLOAD] Multer filter starting');
-    checkFileType(file, cb);
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB limit
+  fileFilter: (req, file, cb) => {
+    cb(null, true); // Allow all file types (images, docs, etc.)
   },
 });
 
-router.post('/', upload.single('image'), (req, res) => {
-  console.log('[UPLOAD] Route handler reached');
-  if (req.file) {
-    // Ensure we return a forward-slash path for the URL
-    const formattedPath = `/${req.file.path.replace(/\\/g, '/')}`;
+// ✅ COMPATIBILITY LAYER: Support both "image" and "file" field names
+router.post('/', (req, res) => {
+  console.log('[UPLOAD] Request received');
+  
+  // Try 'image' first, then 'file'
+  upload.fields([{ name: 'image', maxCount: 1 }, { name: 'file', maxCount: 1 }])(req, res, (err) => {
+    if (err) {
+      console.error('[UPLOAD] Multer error:', err.message);
+      return res.status(400).json({ error: err.message });
+    }
+
+    const uploadedFile = (req.files['image'] && req.files['image'][0]) || (req.files['file'] && req.files['file'][0]);
+
+    if (!uploadedFile) {
+      console.error('[UPLOAD] No file found in request');
+      return res.status(400).json({ error: 'No file uploaded. Use field "image" or "file".' });
+    }
+
+    const formattedPath = `/${uploadedFile.path.replace(/\\/g, '/')}`;
+    const fullUrl = `${req.protocol}://${req.get('host')}${formattedPath}`;
+    
     console.log(`[UPLOAD] Success: ${formattedPath}`);
-    res.send(formattedPath);
-  } else {
-    console.log('[UPLOAD] No file in request');
-    res.status(400).send('No file uploaded');
-  }
+
+    // Return everything to satisfy all frontend services (Review, Chat, Products)
+    // - Review/Product wants a string (legacy) or filePath
+    // - Chat wants .url
+    res.json({
+      success: true,
+      filePath: formattedPath, // Used by productService
+      url: fullUrl,           // Used by ChatScreen
+      name: uploadedFile.filename,
+      originalName: uploadedFile.originalname
+    });
+  });
 });
 
 module.exports = router;

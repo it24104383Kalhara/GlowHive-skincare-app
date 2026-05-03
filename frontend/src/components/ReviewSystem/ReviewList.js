@@ -46,13 +46,13 @@ const ReviewList = ({ reviews, onEdit, onDelete, currentUser }) => {
             <View>
               <Text style={styles.imageLabel}>BEFORE & AFTER RESULTS</Text>
               <View style={styles.dualImageRow}>
-                {(item.beforeImage || item.image) && (
+                 {(item.beforeImage || item.image) && (
                   <View style={styles.imageBox}>
                     <Image
                       source={{ 
                         uri: (() => {
                           const img = item.beforeImage || item.image;
-                          if (!img) return null;
+                          if (!img || typeof img !== 'string') return null;
                           if (img.startsWith('http')) return img;
                           const cleanPath = img.startsWith('/') ? img.substring(1) : img;
                           return `${BASE_SERVER_URL}/${cleanPath}?t=${item.updatedAt || Date.now()}`;
@@ -71,7 +71,7 @@ const ReviewList = ({ reviews, onEdit, onDelete, currentUser }) => {
                     <Image
                       source={{ 
                         uri: (() => {
-                          if (!item.afterImage) return null;
+                          if (!item.afterImage || typeof item.afterImage !== 'string') return null;
                           if (item.afterImage.startsWith('http')) return item.afterImage;
                           const cleanPath = item.afterImage.startsWith('/') ? item.afterImage.substring(1) : item.afterImage;
                           return `${BASE_SERVER_URL}/${cleanPath}?t=${item.updatedAt || Date.now()}`;
