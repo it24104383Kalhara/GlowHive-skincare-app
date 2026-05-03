@@ -130,7 +130,7 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Header */}
       <View style={styles.header}>
-        {(user?.isAdmin || user?.role === 'seller') ? (
+        {user?.isAdmin ? (
           <TouchableOpacity onPress={() => setMenuVisible(true)}>
             <Ionicons name="menu-outline" size={26} color={Colors.black} />
           </TouchableOpacity>

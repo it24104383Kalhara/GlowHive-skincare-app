@@ -13,77 +13,96 @@ const getProductById = async (id) => {
 
 const createProduct = async (productData, token) => {
   const response = await api.post('/products', productData, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
   return response.data;
 };
 
 const updateProduct = async (id, productData, token) => {
   const response = await api.put(`/products/${id}`, productData, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
   return response.data;
 };
 
 const deleteProduct = async (id, token) => {
   const response = await api.delete(`/products/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
   return response.data;
 };
 
 const uploadImage = async (imageUri, productName = '') => {
-  if (!imageUri) throw new Error('No image selected');
-
   const formData = new FormData();
+  
+  // Sanitize product name to be safe for file system
+  const sanitizedName = productName 
+    ? productName.toLowerCase().replace(/[^a-z0-9]/g, '-') 
+    : 'product';
 
-  // Get file extension from URI (fallback to jpg)
+  // Default extension
   let ext = 'jpg';
-  let mimeType = 'image/jpeg';
-  if (imageUri.split('.').pop()) {
-    const possibleExt = imageUri.split('.').pop().toLowerCase();
-    if (possibleExt === 'png') {
-      ext = 'png';
-      mimeType = 'image/png';
-    } else if (possibleExt === 'webp') {
-      ext = 'webp';
-      mimeType = 'image/webp';
+  
+  // Try to extract real extension from URI if not a blob/data URL
+  if (!imageUri.startsWith('data:') && !imageUri.startsWith('blob:')) {
+    const parts = imageUri.split('.');
+    if (parts.length > 1) {
+      const detectedExt = parts.pop().toLowerCase();
+      if (['jpg', 'jpeg', 'png'].includes(detectedExt)) {
+        ext = detectedExt === 'jpeg' ? 'jpg' : detectedExt;
+      }
     }
   }
 
-  const cleanName = productName ? productName.replace(/[^a-z0-9]/gi, '-') : 'product';
-  const fileName = `${cleanName}-${Date.now()}.${ext}`;
-
-  if (Platform.OS === 'web') {
-    // Web: Convert blob URL to File object
-    let blob;
-    if (imageUri.startsWith('blob:')) {
-      const res = await fetch(imageUri);
-      blob = await res.blob();
-    } else if (imageUri.startsWith('data:')) {
-      // data URL – convert to blob
-      const res = await fetch(imageUri);
-      blob = await res.blob();
-    } else {
-      // assume file URL – fallback
-      const res = await fetch(imageUri);
-      blob = await res.blob();
+  const fileName = `${sanitizedName}-${Date.now()}.${ext}`;
+  
+  // Handle Web vs Mobile uploads
+  if (Platform.OS === 'web' || imageUri.startsWith('data:') || imageUri.startsWith('blob:')) {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      
+      // Better extension from blob type if possible
+      let finalFileName = fileName;
+      if (blob.type) {
+        const typeExt = blob.type.split('/')[1];
+        if (typeExt === 'png' || typeExt === 'jpeg' || typeExt === 'jpg') {
+          const actualExt = typeExt === 'jpeg' ? 'jpg' : typeExt;
+          finalFileName = `${sanitizedName}-${Date.now()}.${actualExt}`;
+        }
+      }
+      
+      formData.append('image', blob, finalFileName);
+    } catch (e) {
+      console.error('Blob conversion failed', e);
+      // Fallback to standard object if fetch fails
+      formData.append('image', {
+        uri: imageUri,
+        type: `image/${ext === 'png' ? 'png' : 'jpeg'}`,
+        name: fileName,
+      });
     }
-    formData.append('image', blob, fileName);
   } else {
-    // Native: use file object
+    // React Native Mobile format
     formData.append('image', {
       uri: imageUri,
+      type: `image/${ext === 'png' ? 'png' : 'jpeg'}`,
       name: fileName,
-      type: mimeType,
     });
   }
 
   const response = await api.post('/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-    timeout: 10000,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
-  return response.data.filePath; // backend returns { filePath: '/uploads/...' }
+  return response.data;
 };
 
 const productService = {

@@ -39,17 +39,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-const register = async (name, email, password, role) => {
-  try {
-    const data = await authService.register(name, email, password, role);
-    setUser(data);
-    await AsyncStorage.setItem('user', JSON.stringify(data));
-    return { success: true };
-  } catch (error) {
-    const message = error.response?.data?.message || 'Registration failed';
-    return { success: false, message };
-  }
-};
+  const register = async (name, email, password) => {
+    try {
+      const data = await authService.register(name, email, password);
+      setUser(data);
+      setHasSessionImagePermission(false);
+      await AsyncStorage.setItem('user', JSON.stringify(data));
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || (error.message === 'Network Error' || error.code === 'ECONNABORTED' ? 'Network Error: Cannot connect to server.' : 'Registration failed');
+      return { success: false, message };
+    }
+  };
 
   const logout = async () => {
     try {

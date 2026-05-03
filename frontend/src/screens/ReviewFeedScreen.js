@@ -24,7 +24,7 @@ const StarRating = ({ rating, size = 12 }) => {
           key={s}
           name={s <= rating ? 'star' : 'star-outline'}
           size={size}
-          color={s <= rating ? '#FFB800' : Colors.secondaryLight}
+          color={s <= rating ? Colors.rating : Colors.tertiaryLight}
           style={{ marginRight: 2 }}
         />
       ))}

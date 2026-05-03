@@ -75,11 +75,13 @@ const LoginScreen = ({ navigation }) => {
               onChangeText={setPassword}
               placeholder="••••••••"
               secureTextEntry
+              rightAction={() => navigation.navigate('ForgotPassword')}
+              rightActionLabel="FORGOT?"
             />
 
             <View style={styles.ctaRow}>
               <GHButton
-                title="LOGIN"
+                title="LOGIN TO ARCHIVE"
                 onPress={handleLogin}
                 loading={loading}
                 style={styles.loginBtn}
@@ -130,20 +132,6 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.md,
-  },
-  topBarTitle: {
-    fontSize: Typography.xs,
-    letterSpacing: Typography.wider,
-    fontWeight: '700',
-    color: Colors.black,
-    textTransform: 'uppercase',
-  },
   header: {
     alignItems: 'center',
     paddingTop: 80, // Lowered for editorial feel
@@ -174,11 +162,6 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     width: '100%',
-  },
-  socialBtnText: {
-    fontSize: Typography.sm,
-    fontWeight: '700',
-    color: Colors.black,
   },
   registerRow: {
     flexDirection: 'row',
