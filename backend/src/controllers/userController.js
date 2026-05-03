@@ -2,12 +2,19 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+// Generate JWT – includes role in payload
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+};
+
 // @desc    Register a new user
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
-  console.log(`Registration attempt: ${email}`);
+  const { name, email, password, role } = req.body;
+  console.log(`Registration attempt: ${email} with role: ${role || 'customer'}`);
 
   const userExists = await User.findOne({ email });
 
@@ -21,6 +28,8 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    role: role || 'customer', // default to customer if not provided
+    isAdmin: false,           // regular users are not admin
   });
 
   if (user) {
@@ -29,8 +38,9 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id),
+      token: generateToken(user._id, user.role),
     });
   } else {
     console.log(`Registration failed: Invalid user data for ${email}`);
@@ -45,15 +55,16 @@ const registerUser = asyncHandler(async (req, res) => {
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Hardcoded Admin Login
+  // Hardcoded Admin Login (keep for backward compatibility)
   if (email === 'admin@gmail.com' && password === 'admin123') {
     const adminDummyId = '000000000000000000000000';
     return res.json({
       _id: adminDummyId,
       name: 'System Admin',
       email: 'admin@gmail.com',
+      role: 'admin',
       isAdmin: true,
-      token: generateToken(adminDummyId),
+      token: generateToken(adminDummyId, 'admin'),
     });
   }
 
@@ -65,8 +76,9 @@ const authUser = asyncHandler(async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         isAdmin: user.isAdmin,
-        token: generateToken(user._id),
+        token: generateToken(user._id, user.role),
       });
     }
   } catch (error) {
@@ -88,6 +100,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       isAdmin: user.isAdmin,
     });
   } else {
@@ -95,13 +108,6 @@ const getUserProfile = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
-
-// Generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
-};
 
 module.exports = {
   registerUser,

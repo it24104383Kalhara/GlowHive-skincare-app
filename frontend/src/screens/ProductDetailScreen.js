@@ -39,7 +39,6 @@ const MOCK_PRODUCT = {
   imageUrl: null,
 };
 
-// Mock data removed in favor of real API integration
 const StarRating = ({ rating, size = 14 }) => {
   return (
     <View style={{ flexDirection: 'row', gap: 2 }}>
@@ -81,6 +80,12 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
   const hideModal = () => {
     setModalConfig(prev => ({ ...prev, visible: false }));
+  };
+
+  // Helper: get seller ID from product.user (could be string or populated object)
+  const getSellerId = () => {
+    // Always use the hardcoded admin ID as the seller
+    return '000000000000000000000000';
   };
 
   useEffect(() => {
@@ -135,7 +140,6 @@ const ProductDetailScreen = ({ route, navigation }) => {
     };
 
     if (Platform.OS === 'web') {
-      // Temporarily bypassing window.confirm to check if the browser is blocking it
       window.alert('Processing deletion request...');
       executeDelete();
     } else {
@@ -235,105 +239,121 @@ const ProductDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
 
-        <View style={styles.contentPad}>
-          {/* Category */}
-          <Text style={styles.categoryLabel}>{product.category}</Text>
+          <View style={styles.contentPad}>
+            {/* Category */}
+            <Text style={styles.categoryLabel}>{product.category}</Text>
 
-          {/* Title */}
-          <Text style={styles.title}>{product.title}</Text>
+            {/* Title */}
+            <Text style={styles.title}>{product.title}</Text>
 
-          {/* Price */}
-          <Text style={styles.price}>${product.price?.toFixed(2)}</Text>
-          <Text style={styles.size}>{product.size || '30ML'}</Text>
+            {/* Price */}
+            <Text style={styles.price}>${product.price?.toFixed(2)}</Text>
+            <Text style={styles.size}>{product.size || '30ML'}</Text>
 
-          {/* Description */}
-          <Text style={styles.description}>{product.description || 'No detailed formulation description provided for this archive entry.'}</Text>
+            {/* Description */}
+            <Text style={styles.description}>{product.description || 'No detailed formulation description provided for this archive entry.'}</Text>
 
-          {/* Skin Type Tags */}
-          <View style={styles.tagRow}>
-            {product.skinTypeTags?.map((tag, idx) => (
-              <View key={idx} style={styles.tag}>
-                <Text style={styles.tagText}>{tag.toUpperCase()}</Text>
-              </View>
-            ))}
-          </View>
+            {/* Skin Type Tags */}
+            <View style={styles.tagRow}>
+              {product.skinTypeTags?.map((tag, idx) => (
+                <View key={idx} style={styles.tag}>
+                  <Text style={styles.tagText}>{tag.toUpperCase()}</Text>
+                </View>
+              ))}
+            </View>
 
-          {/* Stock warning */}
-          {product.stock <= 5 && product.stock > 0 && (
-            <Text style={styles.stockAlert}>• ONLY {product.stock} UNITS REMAINING</Text>
-          )}
+            {/* Stock warning */}
+            {product.stock <= 5 && product.stock > 0 && (
+              <Text style={styles.stockAlert}>• ONLY {product.stock} UNITS REMAINING</Text>
+            )}
 
-          {/* Add to Cart */}
-          <GHButton
-            title="ADD TO CART"
-            onPress={handleAddToCart}
-            loading={addingToCart}
-            style={styles.addCartBtn}
-            disabled={product.stock === 0}
-          />
+            {/* Add to Cart */}
+            <GHButton
+              title="ADD TO CART"
+              onPress={handleAddToCart}
+              loading={addingToCart}
+              style={styles.addCartBtn}
+              disabled={product.stock === 0}
+            />
 
-          {/* Divider */}
-          <View style={styles.divider} />
-
-          {/* Molecular Composition */}
-          <Text style={styles.sectionTitle}>Molecular Composition</Text>
-          <View style={styles.ingredientsGrid}>
-            {(Array.isArray(product.ingredients) ? product.ingredients : 
-               (typeof product.ingredients === 'string' ? product.ingredients.split(',').map(s => s.trim()) : MOCK_PRODUCT.ingredients)
-            ).map((ing, i) => (
-              <View key={i} style={styles.ingredientChip}>
-                <Text style={styles.ingredientText}>{ing.toUpperCase()}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Divider */}
-          <View style={styles.divider} />
-
-        {/* Customer Review System — THE SOCIAL PROOF */}
-        <View style={{ backgroundColor: '#F0F4F2', padding: 20, borderRadius: 15, marginTop: 40 }}>
-          <Text style={{ color: '#2D4B43', fontWeight: '800', marginBottom: 10 }}>● REVIEW MODULE ACTIVE</Text>
-          <Text style={styles.sectionTitle}>Customer Testimonials</Text>
-          <View style={styles.ratingRow}>
-            <StarRating rating={Math.round(product.rating || 0)} size={16} />
-            <Text style={styles.ratingNum}>{(product.rating || 0).toFixed(1)} ({product.numReviews || 0} Reviews)</Text>
-          </View>
-
-          {user ? (
-            showForm ? (
-              <ReviewForm
-                productId={product._id}
-                onSubmit={handleReviewSubmit}
-                initialData={editingReview}
-                onCancel={() => {
-                  setShowForm(false);
-                  setEditingReview(null);
+            {/* 👇 MESSAGE THE SELLER button – visible only to customers */}
+            {user && !user.isAdmin && getSellerId() && (
+              <GHButton
+                title="MESSAGE THE SELLER"
+                variant="outline"
+                onPress={() => {
+                  navigation.navigate('Chat', {
+                    sellerId: getSellerId(),
+                    productId: product._id,
+                    productTitle: product.title,
+                  });
                 }}
-                token={user.token}
+                style={styles.messageBtn}
               />
-            ) : (
-              !reviews.find(r => String(r.user) === String(user._id)) && (
-                <GHButton
-                  title="WRITE A REVIEW"
-                  onPress={() => setShowForm(true)}
-                  style={styles.writeReviewBtn}
-                  variant="outline"
-                />
-              )
-            )
-          ) : (
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginToReview}>Login to share your results</Text>
-            </TouchableOpacity>
-          )}
+            )}
 
-          <ReviewList
-            reviews={reviews}
-            onEdit={handleReviewEdit}
-            onDelete={handleReviewDelete}
-            currentUser={user}
-          />
-          </View>
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Molecular Composition */}
+            <Text style={styles.sectionTitle}>Molecular Composition</Text>
+            <View style={styles.ingredientsGrid}>
+              {(Array.isArray(product.ingredients) ? product.ingredients : 
+                 (typeof product.ingredients === 'string' ? product.ingredients.split(',').map(s => s.trim()) : MOCK_PRODUCT.ingredients)
+              ).map((ing, i) => (
+                <View key={i} style={styles.ingredientChip}>
+                  <Text style={styles.ingredientText}>{ing.toUpperCase()}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Customer Review System — THE SOCIAL PROOF */}
+            <View style={{ backgroundColor: '#F0F4F2', padding: 20, borderRadius: 15, marginTop: 40 }}>
+              <Text style={{ color: '#2D4B43', fontWeight: '800', marginBottom: 10 }}>● REVIEW MODULE ACTIVE</Text>
+              <Text style={styles.sectionTitle}>Customer Testimonials</Text>
+              <View style={styles.ratingRow}>
+                <StarRating rating={Math.round(product.rating || 0)} size={16} />
+                <Text style={styles.ratingNum}>{(product.rating || 0).toFixed(1)} ({product.numReviews || 0} Reviews)</Text>
+              </View>
+
+              {user ? (
+                showForm ? (
+                  <ReviewForm
+                    productId={product._id}
+                    onSubmit={handleReviewSubmit}
+                    initialData={editingReview}
+                    onCancel={() => {
+                      setShowForm(false);
+                      setEditingReview(null);
+                    }}
+                    token={user.token}
+                  />
+                ) : (
+                  !reviews.find(r => String(r.user) === String(user._id)) && (
+                    <GHButton
+                      title="WRITE A REVIEW"
+                      onPress={() => setShowForm(true)}
+                      style={styles.writeReviewBtn}
+                      variant="outline"
+                    />
+                  )
+                )
+              ) : (
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.loginToReview}>Login to share your results</Text>
+                </TouchableOpacity>
+              )}
+
+              <ReviewList
+                reviews={reviews}
+                onEdit={handleReviewEdit}
+                onDelete={handleReviewDelete}
+                currentUser={user}
+              />
+            </View>
           </View>
         </ScrollView>
       )}
@@ -369,7 +389,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...Shadow.md,
-    zIndex: 10, 
+    zIndex: 10,
   },
   headerLogo: {
     fontSize: Typography.md,
@@ -439,6 +459,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.base,
   },
   addCartBtn: { width: '100%', marginBottom: Spacing.xl },
+  messageBtn: { marginTop: Spacing.sm, borderColor: Colors.primary }, // 👈 New style
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.xl },
 
   sectionTitle: {

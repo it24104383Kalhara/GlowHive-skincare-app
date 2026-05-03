@@ -54,9 +54,9 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
     if (asset.uri.startsWith('data:') || asset.uri.startsWith('blob:')) {
       const response = await fetch(asset.uri);
       const blob = await response.blob();
-      formData.append('image', blob, `${type}_result.jpg`);
+      formData.append('file', blob, `${type}_result.jpg`);
     } else {
-      formData.append('image', {
+      formData.append('file', {
         uri: asset.uri,
         name: `${type}_result.jpg`,
         type: 'image/jpeg',
@@ -74,8 +74,8 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
         },
       };
       const { data } = await api.post('/upload', formData, config);
-      if (type === 'before') setBeforeImage(data);
-      else setAfterImage(data);
+      if (type === 'before') setBeforeImage(data.url || data);
+      else setAfterImage(data.url || data);
     } catch (error) {
       console.error(error);
       Alert.alert('Upload Failed', 'The image could not be archived. Please check your connection.');
