@@ -9,6 +9,7 @@ const generateToken = (id, role) => {
   });
 };
 
+
 // @desc    Register a new user
 // @route   POST /api/users
 // @access  Public
@@ -16,10 +17,12 @@ const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
   console.log(`Registration attempt: ${email} with role: ${role || 'customer'}`);
 
+
   const userExists = await User.findOne({ email });
 
   if (userExists) {
     console.log(`Registration failed: User ${email} already exists`);
+
     res.status(400);
     throw new Error('User already exists');
   }
@@ -34,6 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     console.log(`Registration successful: ${email}`);
+
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -44,6 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
     });
   } else {
     console.log(`Registration failed: Invalid user data for ${email}`);
+
     res.status(400);
     throw new Error('Invalid user data');
   }
@@ -65,6 +70,7 @@ const authUser = asyncHandler(async (req, res) => {
       role: 'admin',
       isAdmin: true,
       token: generateToken(adminDummyId, 'admin'),
+
     });
   }
 
@@ -78,6 +84,7 @@ const authUser = asyncHandler(async (req, res) => {
       role: user.role,
       isAdmin: user.isAdmin,
       token: generateToken(user._id, user.role),
+
     });
   } else {
     res.status(401);
@@ -97,6 +104,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+
       isAdmin: user.isAdmin,
     });
   } else {
@@ -104,6 +112,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
+
 
 module.exports = {
   registerUser,

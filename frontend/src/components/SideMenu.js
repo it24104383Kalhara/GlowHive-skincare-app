@@ -47,6 +47,7 @@ const SideMenu = ({ visible, onClose, navigation }) => {
     </TouchableOpacity>
   );
 
+
   return (
     <Modal visible={showModal} transparent animationType="fade">
       <View style={styles.overlay}>
@@ -54,7 +55,6 @@ const SideMenu = ({ visible, onClose, navigation }) => {
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
             <Ionicons name="close" size={28} color={Colors.black} />
           </TouchableOpacity>
-          
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
             <View style={styles.titleBlock}>
               <Text style={styles.eyebrow}>THE CLINICAL PANEL</Text>
@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
   },
   title: { 
     fontSize: Typography.base, 
+
     fontWeight: '700', 
     color: Colors.black, 
   },

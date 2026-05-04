@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -26,6 +27,7 @@ const ProductListScreen = ({ navigation }) => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [menuVisible, setMenuVisible] = useState(false);
 
   const { user } = useContext(AuthContext);
@@ -47,6 +49,7 @@ const ProductListScreen = ({ navigation }) => {
   const hideModal = () => {
     setModalConfig(prev => ({ ...prev, visible: false }));
   };
+
 
   useFocusEffect(
     useCallback(() => {
@@ -184,7 +187,6 @@ const ProductListScreen = ({ navigation }) => {
         onClose={() => setMenuVisible(false)} 
         navigation={navigation} 
       />
-
       <GHModal
         visible={modalConfig.visible}
         title={modalConfig.title}

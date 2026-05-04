@@ -9,6 +9,7 @@ import {
   StatusBar,
   Image,
   ImageBackground,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -49,6 +50,7 @@ const HomeScreen = ({ navigation }) => {
   const hideModal = () => {
     setModalConfig(prev => ({ ...prev, visible: false }));
   };
+
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -190,6 +192,24 @@ const HomeScreen = ({ navigation }) => {
           contentContainerStyle={styles.trendingList}
         />
 
+        {/* Skin Diary Quick Access */}
+        <TouchableOpacity 
+          style={styles.diaryBanner} 
+          activeOpacity={0.9}
+          onPress={() => navigation.navigate('Diary')}
+        >
+          <View style={styles.diaryBannerContent}>
+            <View>
+              <Text style={styles.diaryBannerEyebrow}>PERSONAL PROGRESS</Text>
+              <Text style={styles.diaryBannerTitle}>Your Skin Diary</Text>
+              <Text style={styles.diaryBannerSub}>Track your clinical results daily.</Text>
+            </View>
+            <View style={styles.diaryBannerIcon}>
+              <Ionicons name="journal-outline" size={24} color={Colors.white} />
+            </View>
+          </View>
+        </TouchableOpacity>
+
         {/* Summer Essentials Heading */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionEyebrow}>SUMMER SELECTION</Text>
@@ -248,7 +268,6 @@ const HomeScreen = ({ navigation }) => {
         onClose={() => setMenuVisible(false)} 
         navigation={navigation} 
       />
-
       <GHModal
         visible={modalConfig.visible}
         title={modalConfig.title}
@@ -420,6 +439,46 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     fontWeight: '600',
   },
+  diaryBanner: {
+    backgroundColor: Colors.primary,
+    marginHorizontal: Spacing.base,
+    marginBottom: Spacing.xl,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    ...Shadow.md,
+  },
+  diaryBannerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  diaryBannerEyebrow: {
+    fontSize: 10,
+    letterSpacing: 2,
+    color: 'rgba(255,255,255,0.7)',
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  diaryBannerTitle: {
+    fontSize: Typography.lg,
+    fontFamily: 'Georgia',
+    color: Colors.white,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  diaryBannerSub: {
+    fontSize: Typography.xs,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  diaryBannerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
 });
 
 export default HomeScreen;

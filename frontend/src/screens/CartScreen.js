@@ -44,6 +44,7 @@ const CartScreen = ({ navigation }) => {
     setModalConfig(prev => ({ ...prev, visible: false }));
   };
 
+
   const handleCheckout = () => {
     if (cartItems.length === 0) {
       Alert.alert('Empty Bag', 'Please add items to your bag before checking out.');
@@ -66,7 +67,8 @@ const CartScreen = ({ navigation }) => {
   };
 
   const renderCartItem = ({ item }) => {
-    const imageUrl = item.imageUrl
+    const imageUrl = item.imageUrl 
+
       ? (item.imageUrl.startsWith('http') ? item.imageUrl : `${BASE_SERVER_URL}${item.imageUrl}`)
       : null;
 
@@ -83,7 +85,6 @@ const CartScreen = ({ navigation }) => {
           <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
           <Text style={styles.itemCategory}>{item.category || 'FORMULATION'}</Text>
           <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-
           <View style={styles.quantityContainer}>
             <TouchableOpacity
               onPress={() => updateQuantity(item._id, -1)}
@@ -173,7 +174,6 @@ const CartScreen = ({ navigation }) => {
               <Text style={styles.totalLabel}>Total</Text>
               <Text style={styles.totalValue}>${(cartTotal + 15).toFixed(2)}</Text>
             </View>
-
             <GHButton
               title="PROCEED TO CHECKOUT"
               onPress={handleCheckout}
@@ -182,7 +182,6 @@ const CartScreen = ({ navigation }) => {
           </View>
         </View>
       )}
-
       <GHModal
         visible={modalConfig.visible}
         title={modalConfig.title}

@@ -14,6 +14,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const skinLogRoutes = require('./routes/skinLogRoutes');
 
 // Connect to MongoDB
 connectDB();
@@ -38,7 +39,6 @@ process.on('unhandledRejection', (reason, promise) => {
 process.on('uncaughtException', (err) => {
   console.error('⚠️  Uncaught Exception:', err);
 });
-
 // Basic route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Glow Hive API' });
@@ -52,6 +52,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/skinlogs', skinLogRoutes);
 
 // Make uploads folder static
 const dirname = path.resolve();
@@ -59,7 +60,6 @@ app.use('/uploads', express.static(path.join(dirname, 'uploads')));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('API Error:', err);
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode).json({
     success: false,

@@ -138,7 +138,6 @@ const RegisterScreen = ({ navigation }) => {
                 <Text style={[styles.roleText, role === 'seller' && styles.roleTextSelected]}>Seller</Text>
               </TouchableOpacity>
             </View>
-
             <View style={styles.ctaRow}>
               <GHButton
                 title="CREATE ACCOUNT"

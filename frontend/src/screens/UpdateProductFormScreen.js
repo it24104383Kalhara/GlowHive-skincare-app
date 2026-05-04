@@ -41,7 +41,6 @@ const UpdateProductFormScreen = ({ route, navigation }) => {
   const [imageChanged, setImageChanged] = useState(false);
   
   const { user, hasSessionImagePermission, setHasSessionImagePermission } = useContext(AuthContext);
-  
   const [modalConfig, setModalConfig] = useState({
     visible: false,
     title: '',
@@ -238,7 +237,6 @@ const UpdateProductFormScreen = ({ route, navigation }) => {
         </View>
         <View style={{ height: Spacing.xxxl }} />
       </ScrollView>
-
       <GHModal
         visible={modalConfig.visible}
         title={modalConfig.title}

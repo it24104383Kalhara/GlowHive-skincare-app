@@ -38,6 +38,7 @@ const MOCK_PRODUCT = {
   imageUrl: null,
 };
 
+
 const StarRating = ({ rating, size = 14 }) => {
   return (
     <View style={{ flexDirection: 'row', gap: 2 }}>
@@ -182,6 +183,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
     setShowForm(true);
   };
 
+
   const handleAddToCart = () => {
     setAddingToCart(true);
     addToCart(product);
@@ -201,6 +203,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
       });
     }, 500);
   };
+
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -393,6 +396,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.black,
   },
+
   imageArea: { paddingHorizontal: Spacing.base, marginBottom: Spacing.base },
   mainImageBox: {
     backgroundColor: Colors.primaryDark,
@@ -499,6 +503,7 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     fontWeight: '500',
   },
+
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',

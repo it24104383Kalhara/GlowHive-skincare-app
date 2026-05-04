@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+
   KeyboardAvoidingView,
   Platform,
   Alert,
@@ -38,6 +39,7 @@ const LoginScreen = ({ navigation }) => {
       Alert.alert('Login Failed', result.message);
     }
   };
+
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -205,6 +207,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     ...Shadow.md,
   },
+
   registerRow: {
     flexDirection: 'row',
     justifyContent: 'center',

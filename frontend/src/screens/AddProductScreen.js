@@ -352,7 +352,6 @@ const AddProductScreen = ({ navigation }) => {
 
         <View style={{ height: Spacing.xxxl }} />
       </ScrollView>
-
       <GHModal
         visible={modalConfig.visible}
         title={modalConfig.title}

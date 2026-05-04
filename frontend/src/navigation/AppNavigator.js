@@ -18,11 +18,12 @@ import ReviewFeedScreen from '../screens/ReviewFeedScreen';
 import AdminReviewDashboard from '../screens/AdminReviewDashboard';
 import InboxScreen from '../screens/InboxScreen';
 import ChatScreen from '../screens/ChatScreen';
+import SkinDiaryScreen from '../screens/SkinDiaryScreen';
+import AddSkinLogScreen from '../screens/AddSkinLogScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import OrderConfirmationScreen from '../screens/OrderConfirmationScreen';
 import MyOrdersScreen from '../screens/MyOrdersScreen';
 import AdminOrdersScreen from '../screens/AdminOrdersScreen';
-
 import { Colors, Typography, Shadow, Spacing, Radius } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
@@ -69,13 +70,13 @@ const MainTabs = () => {
           letterSpacing: Typography.wide,
           fontWeight: '700',
           textTransform: 'uppercase',
-          marginTop: 4,
         },
         tabBarIcon: ({ focused, color, size }) => {
           const icons = {
             Home: focused ? 'home' : 'home-outline',
             Catalogue: focused ? 'grid' : 'grid-outline',
             Reviews: focused ? 'chatbubbles' : 'chatbubbles-outline',
+            Diary: focused ? 'book' : 'book-outline',
             Inbox: focused ? 'mail' : 'mail-outline',
             Profile: focused ? 'person' : 'person-outline',
           };
@@ -88,7 +89,7 @@ const MainTabs = () => {
               ]}>
                 <Ionicons 
                   name={icons[route.name] || 'ellipse-outline'} 
-                  size={focused ? 26 : 24} 
+                  size={focused ? 24 : 22} 
                   color={color} 
                 />
               </View>
@@ -110,6 +111,7 @@ const MainTabs = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'HOME' }} />
+      <Tab.Screen name="Diary" component={SkinDiaryScreen} options={{ tabBarLabel: 'DIARY' }} />
       <Tab.Screen name="Catalogue" component={ProductListScreen} options={{ tabBarLabel: 'ARCHIVE' }} />
       <Tab.Screen name="Reviews" component={ReviewFeedScreen} options={{ tabBarLabel: 'REVIEWS' }} />
       <Tab.Screen name="Inbox" component={InboxScreen} options={{ tabBarLabel: 'INBOX' }} />
@@ -163,7 +165,6 @@ const ProfilePlaceholder = ({ navigation }) => {
           </>
         )}
       </View>
-
       <TouchableOpacity
         style={styles.logoutBtn}
         onPress={logout}
@@ -194,6 +195,7 @@ const AppNavigator = () => {
         headerShown: false,
         animation: 'slide_from_right',
         gestureEnabled: true 
+
       }}
     >
       {user ? (
@@ -204,6 +206,8 @@ const AppNavigator = () => {
           <Stack.Screen name="UpdateProductList" component={UpdateProductListScreen} />
           <Stack.Screen name="UpdateProductForm" component={UpdateProductFormScreen} />
           <Stack.Screen name="DeleteProductList" component={DeleteProductListScreen} />
+          <Stack.Screen name="AddSkinLog" component={AddSkinLogScreen} />
+
           <Stack.Screen name="Cart" component={CartScreen} />
           <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
@@ -211,6 +215,7 @@ const AppNavigator = () => {
           <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
           <Stack.Screen name="AdminReviews" component={AdminReviewDashboard} />
           <Stack.Screen name="Chat" component={ChatScreen} /> 
+
         </>
       ) : (
         <>
@@ -221,6 +226,7 @@ const AppNavigator = () => {
     </Stack.Navigator>
   );
 };
+
 
 const styles = StyleSheet.create({
   placeholder: {
@@ -258,6 +264,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 32,
   },
+
   btnGroup: {
     width: '100%',
     marginBottom: 32,

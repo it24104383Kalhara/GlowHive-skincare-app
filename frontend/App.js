@@ -29,6 +29,7 @@ console.error = (...args) => {
   originalError(...args);
 };
 
+
 export default function App() {
   return (
     <AuthProvider>
@@ -43,3 +44,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+

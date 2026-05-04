@@ -21,6 +21,7 @@ const getProductById = asyncHandler(async (req, res) => {
     throw new Error('Product not found (Invalid ID)');
   }
 
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
