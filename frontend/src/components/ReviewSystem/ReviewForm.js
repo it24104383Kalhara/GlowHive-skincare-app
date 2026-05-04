@@ -28,6 +28,10 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const MAX_COMMENT_LENGTH = 500;
+  const MIN_COMMENT_LENGTH = 3;
 
   const pickImage = async (type) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -85,18 +89,39 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
     }
   };
 
-  const handleSubmit = async () => {
-    // Validation
-    if (!comment || comment.trim().length < 3) {
-      Alert.alert('Archive Entry Incomplete', 'Please share a bit more about your experience (at least 3 characters).');
-      return;
+  const validate = () => {
+    let newErrors = {};
+    
+    if (!comment || comment.trim().length === 0) {
+      newErrors.comment = 'Please fill the comment section.';
+    } else if (comment.trim().length < MIN_COMMENT_LENGTH) {
+      newErrors.comment = `Archive entry must be at least ${MIN_COMMENT_LENGTH} characters.`;
+    } else if (comment.length > MAX_COMMENT_LENGTH) {
+      newErrors.comment = `Archive entry must not exceed ${MAX_COMMENT_LENGTH} characters.`;
     }
+
     if (!beforeImage) {
-      Alert.alert('Documentation Required', 'Please upload a "Before" photo to document your starting point.');
-      return;
+      newErrors.beforeImage = 'Upload photo before.';
     }
     if (!afterImage) {
-      Alert.alert('Results Required', 'Please upload an "After" photo to show the archive results.');
+      newErrors.afterImage = 'Upload photo after.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) {
+      const firstError = Object.values(errors)[0] || 'Please complete all required fields.';
+      // We can still use Alert for high-priority blocking, but inline errors are better
+      if (!comment || comment.trim().length === 0) {
+        Alert.alert('Incomplete Entry', 'Please fill the comment section.');
+      } else if (comment.trim().length < MIN_COMMENT_LENGTH) {
+        Alert.alert('Incomplete Entry', `Archive entry must be at least ${MIN_COMMENT_LENGTH} characters.`);
+      } else if (!beforeImage || !afterImage) {
+        Alert.alert('Documentation Required', 'upload photoes after and before');
+      }
       return;
     }
 
@@ -139,18 +164,39 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
       </View>
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, errors.comment && styles.inputError]}
         placeholder="How has this product refined your skin? (e.g. texture, glow, sensitivity...)"
         placeholderTextColor={Colors.secondary}
         multiline
         numberOfLines={4}
         value={comment}
-        onChangeText={setComment}
+        onChangeText={(text) => {
+          setComment(text);
+          if (errors.comment) setErrors(prev => ({ ...prev, comment: null }));
+        }}
+        maxLength={MAX_COMMENT_LENGTH}
       />
+      <View style={styles.inputFooter}>
+        {errors.comment ? (
+          <Text style={styles.errorText}>{errors.comment}</Text>
+        ) : (
+          <View />
+        )}
+        <Text style={[styles.charCount, comment.length >= MAX_COMMENT_LENGTH && styles.charCountMax]}>
+          {comment.length}/{MAX_COMMENT_LENGTH}
+        </Text>
+      </View>
 
       {/* Image Upload Area */}
       <View style={styles.dualImageRow}>
-        <TouchableOpacity style={styles.imagePicker} onPress={() => pickImage('before')} disabled={uploadingBefore}>
+        <TouchableOpacity 
+          style={[styles.imagePicker, errors.beforeImage && styles.imagePickerError]} 
+          onPress={() => {
+            pickImage('before');
+            if (errors.beforeImage) setErrors(prev => ({ ...prev, beforeImage: null }));
+          }} 
+          disabled={uploadingBefore}
+        >
           {uploadingBefore ? (
             <ActivityIndicator color={Colors.primary} />
           ) : beforeImage ? (
@@ -178,7 +224,14 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.imagePicker} onPress={() => pickImage('after')} disabled={uploadingAfter}>
+        <TouchableOpacity 
+          style={[styles.imagePicker, errors.afterImage && styles.imagePickerError]} 
+          onPress={() => {
+            pickImage('after');
+            if (errors.afterImage) setErrors(prev => ({ ...prev, afterImage: null }));
+          }} 
+          disabled={uploadingAfter}
+        >
           {uploadingAfter ? (
             <ActivityIndicator color={Colors.primary} />
           ) : afterImage ? (
@@ -260,6 +313,31 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     ...Shadow.sm,
   },
+  inputError: {
+    borderColor: '#e74c3c',
+    borderWidth: 1,
+  },
+  inputFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: -Spacing.sm,
+    marginBottom: Spacing.md,
+    paddingHorizontal: 4,
+  },
+  charCount: {
+    fontSize: 10,
+    color: Colors.secondary,
+    fontFamily: 'monospace',
+  },
+  charCountMax: {
+    color: '#e74c3c',
+    fontWeight: '700',
+  },
+  errorText: {
+    color: '#e74c3c',
+    fontSize: 10,
+    fontWeight: '600',
+  },
   uploadArea: {
     height: 180,
     backgroundColor: Colors.white,
@@ -288,6 +366,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+  },
+  imagePickerError: {
+    borderColor: '#e74c3c',
+    borderStyle: 'solid',
+    borderWidth: 2,
   },
   placeholder: {
     alignItems: 'center',

@@ -9,9 +9,38 @@ const Product = require('../models/Product');
 const createReview = asyncHandler(async (req, res) => {
   const { rating, comment, beforeImage, afterImage, productId } = req.body;
 
+  // 1. Basic ID Validation
   if (!mongoose.Types.ObjectId.isValid(productId)) {
     res.status(404);
     throw new Error('Product not found (Invalid ID)');
+  }
+
+  // 2. Field Presence Validation
+  if (!rating) {
+    res.status(400);
+    throw new Error('Please provide a rating');
+  }
+  if (!comment || comment.trim().length === 0) {
+    res.status(400);
+    throw new Error('Please fill the comment section');
+  }
+  if (!beforeImage || !afterImage) {
+    res.status(400);
+    throw new Error('upload photoes after and before');
+  }
+
+  // 3. Data Range/Type Validation
+  if (rating < 1 || rating > 5) {
+    res.status(400);
+    throw new Error('Rating must be between 1 and 5');
+  }
+  if (comment.length < 3) {
+    res.status(400);
+    throw new Error('Comment must be at least 3 characters long');
+  }
+  if (comment.length > 500) {
+    res.status(400);
+    throw new Error('Comment must not exceed 500 characters');
   }
 
   const product = await Product.findById(productId);
@@ -24,7 +53,7 @@ const createReview = asyncHandler(async (req, res) => {
 
     if (alreadyReviewed) {
       res.status(400);
-      throw new Error('Product already reviewed');
+      throw new Error('You have already archived results for this product');
     }
 
     const review = await Review.create({
@@ -87,8 +116,27 @@ const updateReview = asyncHandler(async (req, res) => {
       throw new Error('Not authorized to update this review');
     }
 
-    review.rating = rating || review.rating;
-    review.comment = comment || review.comment;
+    // Validation for updates
+    if (rating !== undefined) {
+      if (rating < 1 || rating > 5) {
+        res.status(400);
+        throw new Error('Rating must be between 1 and 5');
+      }
+      review.rating = rating;
+    }
+
+    if (comment !== undefined) {
+      if (comment.trim().length < 3) {
+        res.status(400);
+        throw new Error('Comment must be at least 3 characters long');
+      }
+      if (comment.length > 500) {
+        res.status(400);
+        throw new Error('Comment must not exceed 500 characters');
+      }
+      review.comment = comment;
+    }
+
     review.beforeImage = beforeImage || review.beforeImage;
     review.afterImage = afterImage || review.afterImage;
 
