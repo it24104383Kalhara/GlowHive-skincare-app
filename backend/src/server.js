@@ -28,6 +28,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/skinlogs', require('./routes/skinLogRoutes'));
+app.use('/api/coupons', require('./routes/couponRoutes'));
 
 // Make uploads folder static so images are publicly accessible
 const dirname = path.resolve();

@@ -20,6 +20,8 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import OrderConfirmationScreen from '../screens/OrderConfirmationScreen';
 import MyOrdersScreen from '../screens/MyOrdersScreen';
 import AdminOrdersScreen from '../screens/AdminOrdersScreen';
+import AdminCouponsScreen from '../screens/AdminCouponsScreen';
+import AddCouponScreen from '../screens/AddCouponScreen';
 import { Colors, Typography } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
@@ -140,6 +142,8 @@ const AppNavigator = () => {
           <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
           <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
           <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
+          <Stack.Screen name="AdminCoupons" component={AdminCouponsScreen} />
+          <Stack.Screen name="AddCoupon" component={AddCouponScreen} />
         </>
       ) : (
         <>

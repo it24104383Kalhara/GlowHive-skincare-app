@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 
 
 const createOrder = asyncHandler(async (req, res) => {
-  const { orderItems, shippingInfo, paymentMethod, cardLastFour } = req.body;
+  const { orderItems, shippingInfo, paymentMethod, cardLastFour, couponCode, discountAmount } = req.body;
 
   // Validate order items
   if (!orderItems || orderItems.length === 0) {
@@ -38,7 +38,8 @@ const createOrder = asyncHandler(async (req, res) => {
   }
 
   const shippingFee = 15.00;
-  const totalAmount = subtotal + shippingFee;
+  const appliedDiscount = discountAmount ? Number(discountAmount) : 0;
+  const totalAmount = subtotal - appliedDiscount + shippingFee;
 
   // Validate stock and decrement
   for (const item of orderItems) {
@@ -67,6 +68,8 @@ const createOrder = asyncHandler(async (req, res) => {
     cardLastFour: paymentMethod === 'card' ? cardLastFour : undefined,
     subtotal,
     shippingFee,
+    discountAmount: appliedDiscount,
+    couponCode,
     totalAmount,
   });
 
