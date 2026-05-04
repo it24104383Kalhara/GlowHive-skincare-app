@@ -21,6 +21,8 @@ import GHInput from '../components/GHInput';
 import GHButton from '../components/GHButton';
 import PaymentModal from '../components/PaymentModal';
 import orderService from '../services/orderService';
+import couponService from '../services/couponService';
+import { TextInput } from 'react-native';
 
 const SHIPPING_FEE = 15.00;
 
@@ -42,7 +44,13 @@ const CheckoutScreen = ({ navigation }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const totalAmount = cartTotal + SHIPPING_FEE;
+  // Coupon
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
+  const totalAmount = Math.max(0, cartTotal + SHIPPING_FEE - (appliedCoupon?.discountAmount || 0));
 
   const validateField = (field, value) => {
     const newErrors = { ...errors };
@@ -100,6 +108,7 @@ const CheckoutScreen = ({ navigation }) => {
     },
     paymentMethod,
     ...(cardLastFour ? { cardLastFour } : {}),
+    ...(appliedCoupon ? { couponCode: appliedCoupon.code, discountAmount: appliedCoupon.discountAmount } : {}),
   });
 
   const handleProceed = () => {
@@ -141,6 +150,32 @@ const CheckoutScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCodeInput.trim()) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+    setApplyingCoupon(true);
+    setCouponError('');
+    try {
+      const data = await couponService.validateCoupon(couponCodeInput.trim(), cartTotal, user.token);
+      setAppliedCoupon({
+        code: data.code,
+        discountAmount: data.discountAmount,
+      });
+      setCouponCodeInput('');
+      Alert.alert('Success', data.message);
+    } catch (error) {
+      setCouponError(error.response?.data?.message || 'Invalid coupon');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
   };
 
   return (
@@ -295,6 +330,44 @@ const CheckoutScreen = ({ navigation }) => {
             </View>
           </View>
 
+          {/* Coupon Section */}
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionEyebrow}>PROMOTION</Text>
+            <Text style={styles.sectionTitle}>Coupon Code</Text>
+            
+            {!appliedCoupon ? (
+              <View>
+                <View style={styles.couponRow}>
+                  <TextInput
+                    style={styles.couponInput}
+                    placeholder="Enter promo code"
+                    value={couponCodeInput}
+                    onChangeText={(text) => { setCouponCodeInput(text); setCouponError(''); }}
+                    autoCapitalize="characters"
+                  />
+                  <TouchableOpacity 
+                    style={styles.couponBtn} 
+                    onPress={handleApplyCoupon}
+                    disabled={applyingCoupon}
+                  >
+                    <Text style={styles.couponBtnText}>{applyingCoupon ? '...' : 'APPLY'}</Text>
+                  </TouchableOpacity>
+                </View>
+                {couponError ? <Text style={styles.couponErrorText}>{couponError}</Text> : null}
+              </View>
+            ) : (
+              <View style={styles.appliedCouponBox}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
+                  <Ionicons name="pricetag" size={18} color={Colors.primary} />
+                  <Text style={styles.appliedCouponText}>{appliedCoupon.code}</Text>
+                </View>
+                <TouchableOpacity onPress={handleRemoveCoupon}>
+                  <Ionicons name="close-circle" size={20} color={Colors.secondary} />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
           {/* Price Summary */}
           <View style={styles.sectionCard}>
             <Text style={styles.sectionEyebrow}>TOTAL</Text>
@@ -308,6 +381,12 @@ const CheckoutScreen = ({ navigation }) => {
               <Text style={styles.summaryLabel}>Shipping</Text>
               <Text style={styles.summaryValue}>${SHIPPING_FEE.toFixed(2)}</Text>
             </View>
+            {appliedCoupon && (
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Discount ({appliedCoupon.code})</Text>
+                <Text style={[styles.summaryValue, { color: Colors.primary }]}>-${appliedCoupon.discountAmount.toFixed(2)}</Text>
+              </View>
+            )}
             <View style={styles.divider} />
             <View style={styles.summaryRow}>
               <Text style={styles.totalLabel}>Total</Text>
@@ -505,6 +584,51 @@ const styles = StyleSheet.create({
     fontSize: Typography.xl,
     fontWeight: '700',
     color: Colors.primary,
+  },
+  couponRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  couponInput: {
+    flex: 1,
+    backgroundColor: Colors.neutral,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.base,
+    fontSize: Typography.md,
+    color: Colors.black,
+  },
+  couponBtn: {
+    backgroundColor: Colors.black,
+    paddingHorizontal: Spacing.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: Radius.md,
+  },
+  couponBtnText: {
+    color: Colors.white,
+    fontWeight: '700',
+    fontSize: Typography.xs,
+    letterSpacing: 1,
+  },
+  couponErrorText: {
+    color: 'red',
+    fontSize: Typography.xs,
+    marginTop: Spacing.xs,
+  },
+  appliedCouponBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#E8F5E9',
+    padding: Spacing.base,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+  },
+  appliedCouponText: {
+    fontSize: Typography.sm,
+    fontWeight: '700',
+    color: '#2E7D32',
   },
   bottomBar: {
     backgroundColor: Colors.white,

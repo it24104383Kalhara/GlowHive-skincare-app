@@ -15,6 +15,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const skinLogRoutes = require('./routes/skinLogRoutes');
+const couponRoutes = require('./routes/couponRoutes');
 
 // Connect to MongoDB
 connectDB();
@@ -53,6 +54,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/skinlogs', skinLogRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Make uploads folder static
 const dirname = path.resolve();
@@ -87,7 +89,19 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('Client disconnected'));
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  const mode = process.env.NODE_ENV || 'development';
-  console.log(`Server is running in ${mode} mode on port ${PORT} (with Socket.io)`);
-});
+const startServer = (port) => {
+  server.listen(port, '0.0.0.0', () => {
+    const mode = process.env.NODE_ENV || 'development';
+    console.log(`Server is running in ${mode} mode on port ${port} (with Socket.io)`);
+  }).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`⚠️  Port ${port} already in use, trying ${port + 1}`);
+      startServer(port + 1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+};
+
+// Start server with configured PORT or fallback
+startServer(PORT);

@@ -36,6 +36,7 @@ const getBaseUrl = () => {
 };
 
 export const BASE_SERVER_URL = getBaseUrl();
+
 const API_URL = `${BASE_SERVER_URL}/api`;
 
 const api = axios.create({

@@ -60,7 +60,6 @@ const SideMenu = ({ visible, onClose, navigation }) => {
               <Text style={styles.eyebrow}>THE CLINICAL PANEL</Text>
               <Text style={styles.pageTitle}>Dashboard</Text>
             </View>
-
             {/* Product Management Section */}
             <Text style={styles.sectionLabel}>INVENTORY</Text>
             {renderItem('add-outline', '#3F51B5', '#E8EAF6', 'Add Product', 'AddProduct')}
@@ -73,6 +72,12 @@ const SideMenu = ({ visible, onClose, navigation }) => {
             <Text style={styles.sectionLabel}>LOGISTICS</Text>
             {renderItem('cart-outline', '#FF9800', '#FFF3E0', 'Admin Orders', 'AdminOrders')}
             {renderItem('receipt-outline', '#607D8B', '#ECEFF1', 'My Orders', 'MyOrders')}
+
+            <View style={styles.sectionDivider} />
+
+            {/* Promotions Management Section */}
+            <Text style={styles.sectionLabel}>PROMOTIONS</Text>
+            {renderItem('pricetag-outline', '#FF8F00', '#FFF8E1', 'Coupons', 'AdminCoupons')}
 
             <View style={styles.sectionDivider} />
 

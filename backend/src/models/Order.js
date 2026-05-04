@@ -56,6 +56,13 @@ const orderSchema = new mongoose.Schema({
     enum: ['processing', 'shipped', 'delivered', 'cancelled'],
     default: 'processing',
   },
+  couponCode: {
+    type: String,
+  },
+  discountAmount: {
+    type: Number,
+    default: 0,
+  },
 }, {
   timestamps: true,
 });

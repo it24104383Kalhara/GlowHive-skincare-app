@@ -24,7 +24,10 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import OrderConfirmationScreen from '../screens/OrderConfirmationScreen';
 import MyOrdersScreen from '../screens/MyOrdersScreen';
 import AdminOrdersScreen from '../screens/AdminOrdersScreen';
+import AdminCouponsScreen from '../screens/AdminCouponsScreen';
+import AddCouponScreen from '../screens/AddCouponScreen';
 import { Colors, Typography, Shadow, Spacing, Radius } from '../utils/theme';
+
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
 import { getUnreadCount, subscribeToUnread } from '../services/unreadService';
@@ -162,6 +165,14 @@ const ProfilePlaceholder = ({ navigation }) => {
               <Ionicons name="cart-outline" size={20} color={Colors.white} style={{ marginRight: 10 }} />
               <Text style={styles.actionBtnText}>ADMIN ORDERS</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: Colors.black }]}
+              onPress={() => navigation.navigate('AdminCoupons')}
+            >
+              <Ionicons name="pricetag-outline" size={20} color={Colors.white} style={{ marginRight: 10 }} />
+              <Text style={styles.actionBtnText}>ADMIN COUPONS</Text>
+            </TouchableOpacity>
           </>
         )}
       </View>
@@ -215,6 +226,8 @@ const AppNavigator = () => {
           <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
           <Stack.Screen name="AdminReviews" component={AdminReviewDashboard} />
           <Stack.Screen name="Chat" component={ChatScreen} /> 
+          <Stack.Screen name="AdminCoupons" component={AdminCouponsScreen} />
+          <Stack.Screen name="AddCoupon" component={AddCouponScreen} />
 
         </>
       ) : (
