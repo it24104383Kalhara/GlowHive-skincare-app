@@ -1,32 +1,19 @@
 require('dotenv').config();
-
-// ─── Global crash guards ───────────────────────────────────────────────────
-// Prevents the server from going down on unhandled promise rejections
-// (e.g. Mongoose CastError not caught by a controller)
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('⚠️  Unhandled Rejection at:', promise, '\n  Reason:', reason);
-  // Log but do NOT exit — keep the server alive
-});
-
-process.on('uncaughtException', (err) => {
-  console.error('⚠️  Uncaught Exception:', err);
-  // Log but do NOT exit — keep the server alive
-});
-// ──────────────────────────────────────────────────────────────────────────
-
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
+const path = require('path');
 const connectDB = require('./config/db');
+
+// Route imports
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
-
-const path = require('path');
+const orderRoutes = require('./routes/orderRoutes');
 
 // Connect to MongoDB
 connectDB();
@@ -43,6 +30,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Global crash guards
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️  Unhandled Rejection at:', promise, '\n  Reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠️  Uncaught Exception:', err);
+});
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Glow Hive API' });
@@ -53,10 +49,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/reviews', reviewRoutes);
-app.use('/api/messages', messageRoutes);        // ✅ ADD THIS
+app.use('/api/messages', messageRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/orders', orderRoutes);
 
-// Make uploads folder static so images are publicly accessible
+// Make uploads folder static
 const dirname = path.resolve();
 app.use('/uploads', express.static(path.join(dirname, 'uploads')));
 
@@ -73,7 +70,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-// ✅ REPLACE `app.listen` with `server.listen` (Socket.io needs HTTP server)
+// Socket.io Setup
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: { origin: '*' },
@@ -91,5 +88,6 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT} (with Socket.io, bound to 0.0.0.0)`);
+  const mode = process.env.NODE_ENV || 'development';
+  console.log(`Server is running in ${mode} mode on port ${PORT} (with Socket.io)`);
 });

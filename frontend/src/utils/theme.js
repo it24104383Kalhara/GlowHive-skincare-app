@@ -66,20 +66,30 @@ export const Radius = {
   lg: 16,
   xl: 24,
   pill: 50,
+  full: 9999,
   round: 9999,
 };
 
 export const Shadow = {
   sm: {
-    boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
     elevation: 2,
   },
   md: {
-    boxShadow: '0px 3px 8px rgba(0, 0, 0, 0.10)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 5,
   },
   lg: {
-    boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.15)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
     elevation: 10,
   },
 };

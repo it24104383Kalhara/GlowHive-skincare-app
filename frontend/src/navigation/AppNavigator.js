@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'; // ✅ ADDED useState, useEffect
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,11 +16,16 @@ import DeleteProductListScreen from '../screens/DeleteProductListScreen';
 import CartScreen from '../screens/CartScreen';
 import ReviewFeedScreen from '../screens/ReviewFeedScreen';
 import AdminReviewDashboard from '../screens/AdminReviewDashboard';
+import InboxScreen from '../screens/InboxScreen';
+import ChatScreen from '../screens/ChatScreen';
+import CheckoutScreen from '../screens/CheckoutScreen';
+import OrderConfirmationScreen from '../screens/OrderConfirmationScreen';
+import MyOrdersScreen from '../screens/MyOrdersScreen';
+import AdminOrdersScreen from '../screens/AdminOrdersScreen';
+
 import { Colors, Typography, Shadow, Spacing, Radius } from '../utils/theme';
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
-import InboxScreen from '../screens/InboxScreen';
-import ChatScreen from '../screens/ChatScreen';
 import { getUnreadCount, subscribeToUnread } from '../services/unreadService';
 
 const Stack = createNativeStackNavigator();
@@ -31,11 +36,8 @@ const Tab = createBottomTabNavigator();
 // ─────────────────────────────────────────────
 const MainTabs = () => {
   const { cartCount } = useContext(CartContext);
-  
-  // ✅ ADDED – state for unread badge
   const [unreadTotal, setUnreadTotal] = useState(getUnreadCount());
 
-  // ✅ ADDED – subscribe to unread count changes
   useEffect(() => {
     const unsubscribe = subscribeToUnread(setUnreadTotal);
     return unsubscribe;
@@ -74,7 +76,7 @@ const MainTabs = () => {
             Home: focused ? 'home' : 'home-outline',
             Catalogue: focused ? 'grid' : 'grid-outline',
             Reviews: focused ? 'chatbubbles' : 'chatbubbles-outline',
-            Inbox: focused ? 'chatbubbles' : 'chatbubbles-outline',
+            Inbox: focused ? 'mail' : 'mail-outline',
             Profile: focused ? 'person' : 'person-outline',
           };
           
@@ -90,12 +92,16 @@ const MainTabs = () => {
                   color={color} 
                 />
               </View>
-              {/* ✅ ADDED – badge for Inbox tab */}
               {route.name === 'Inbox' && unreadTotal > 0 && (
                 <View style={styles.tabBadge}>
                   <Text style={styles.tabBadgeText}>
                     {unreadTotal > 9 ? '9+' : unreadTotal}
                   </Text>
+                </View>
+              )}
+              {route.name === 'Catalogue' && cartCount > 0 && (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>{cartCount}</Text>
                 </View>
               )}
             </View>
@@ -120,7 +126,6 @@ const ProfilePlaceholder = ({ navigation }) => {
   
   return (
     <View style={styles.placeholder}>
-
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.placeholderGoBackButton}>
         <Ionicons name="chevron-back" size={26} color={Colors.black} />
       </TouchableOpacity>
@@ -128,15 +133,37 @@ const ProfilePlaceholder = ({ navigation }) => {
       <Ionicons name="person-circle-outline" size={72} color={Colors.primary} />
       <Text style={styles.placeholderTitle}>{user?.name || 'Your Profile'}</Text>
       <Text style={styles.placeholderSub}>Email: {user?.email}</Text>
-      <Text style={styles.placeholderSub}>Order history, skin diary & support will live here.</Text>
-      {user?.isAdmin && (
+      
+      <View style={styles.btnGroup}>
         <TouchableOpacity
-          style={[styles.logoutBtn, { borderColor: Colors.black, marginBottom: 12 }]}
-          onPress={() => navigation.navigate('AdminReviews')}
+          style={styles.actionBtn}
+          onPress={() => navigation.navigate('MyOrders')}
         >
-          <Text style={[styles.logoutText, { color: Colors.black }]}>ADMIN REVIEW DASHBOARD</Text>
+          <Ionicons name="receipt-outline" size={20} color={Colors.white} style={{ marginRight: 10 }} />
+          <Text style={styles.actionBtnText}>MY ORDERS</Text>
         </TouchableOpacity>
-      )}
+
+        {user?.isAdmin && (
+          <>
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: Colors.black }]}
+              onPress={() => navigation.navigate('AdminReviews')}
+            >
+              <Ionicons name="shield-checkmark-outline" size={20} color={Colors.white} style={{ marginRight: 10 }} />
+              <Text style={styles.actionBtnText}>ADMIN REVIEWS</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: Colors.black }]}
+              onPress={() => navigation.navigate('AdminOrders')}
+            >
+              <Ionicons name="cart-outline" size={20} color={Colors.white} style={{ marginRight: 10 }} />
+              <Text style={styles.actionBtnText}>ADMIN ORDERS</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+
       <TouchableOpacity
         style={styles.logoutBtn}
         onPress={logout}
@@ -178,6 +205,10 @@ const AppNavigator = () => {
           <Stack.Screen name="UpdateProductForm" component={UpdateProductFormScreen} />
           <Stack.Screen name="DeleteProductList" component={DeleteProductListScreen} />
           <Stack.Screen name="Cart" component={CartScreen} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
+          <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
+          <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
+          <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
           <Stack.Screen name="AdminReviews" component={AdminReviewDashboard} />
           <Stack.Screen name="Chat" component={ChatScreen} /> 
         </>
@@ -190,7 +221,6 @@ const AppNavigator = () => {
     </Stack.Navigator>
   );
 };
-
 
 const styles = StyleSheet.create({
   placeholder: {
@@ -228,16 +258,37 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 32,
   },
+  btnGroup: {
+    width: '100%',
+    marginBottom: 32,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.full,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    marginBottom: 12,
+    ...Shadow.sm,
+  },
+  actionBtnText: {
+    fontSize: 11,
+    letterSpacing: 2,
+    fontWeight: '700',
+    color: Colors.white,
+  },
   logoutBtn: {
     borderWidth: 1.5,
     borderColor: Colors.primary,
-    borderRadius: 999,
+    borderRadius: Radius.full,
     paddingHorizontal: 32,
     paddingVertical: 12,
   },
   logoutText: {
-    fontSize: 12,
-    letterSpacing: 4,
+    fontSize: 11,
+    letterSpacing: 3,
     fontWeight: '700',
     color: Colors.primary,
   },
@@ -246,18 +297,18 @@ const styles = StyleSheet.create({
     top: -4,
     right: -10,
     backgroundColor: Colors.primary,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Colors.white,
   },
   tabBadgeText: {
     color: Colors.white,
     fontSize: 8,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   iconContainer: {
     width: 44,
@@ -271,7 +322,6 @@ const styles = StyleSheet.create({
     ...Shadow.sm,
     transform: [{ translateY: -4 }],
   },
-  
 });
 
 export default AppNavigator;
