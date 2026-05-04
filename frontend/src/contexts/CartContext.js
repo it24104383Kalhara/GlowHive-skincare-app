@@ -39,7 +39,6 @@ export const CartProvider = ({ children }) => {
       }
     };
     
-    // Only save if we have a user and items (or we just cleared it)
     if (cartKey) {
       saveCart();
     }

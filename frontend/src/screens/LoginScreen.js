@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Alert,
@@ -40,7 +39,6 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.safe}>
       <KeyboardAvoidingView
@@ -52,7 +50,6 @@ const LoginScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-
           {/* Hero Header */}
           <View style={styles.header}>
             <Text style={styles.brandLabel}>GLOW HIVE SKINCARE</Text>
@@ -75,15 +72,34 @@ const LoginScreen = ({ navigation }) => {
               onChangeText={setPassword}
               placeholder="••••••••"
               secureTextEntry
+              rightAction={() => Alert.alert('Feature Coming Soon', 'Password recovery is being archived.')}
+              rightActionLabel="FORGOT?"
             />
 
             <View style={styles.ctaRow}>
               <GHButton
-                title="LOGIN"
+                title="LOGIN TO ARCHIVE"
                 onPress={handleLogin}
                 loading={loading}
                 style={styles.loginBtn}
               />
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Social login */}
+            <View style={styles.socialRow}>
+              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
+                <Ionicons name="logo-google" size={20} color={Colors.black} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8}>
+                <Ionicons name="logo-apple" size={20} color={Colors.black} />
+              </TouchableOpacity>
             </View>
 
             {/* Register link */}
@@ -103,7 +119,6 @@ const LoginScreen = ({ navigation }) => {
               Glow Hive clinical data is protected by industry standard encryption.
             </Text>
           </View>
-          {/* Scrollable content ends here */}
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -115,9 +130,6 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.footerTagline}>EST. MMXXIV | THE BOTANICAL ARCHIVE</Text>
         </View>
       </View>
-
-      {/* Fixed Botanical Ribbon at exact bottom */}
-      <View style={styles.fixedBottomRibbon} />
     </SafeAreaView>
   );
 };
@@ -130,23 +142,9 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.md,
-  },
-  topBarTitle: {
-    fontSize: Typography.xs,
-    letterSpacing: Typography.wider,
-    fontWeight: '700',
-    color: Colors.black,
-    textTransform: 'uppercase',
-  },
   header: {
     alignItems: 'center',
-    paddingTop: 80, // Lowered for editorial feel
+    paddingTop: 60,
     paddingBottom: Spacing.xl,
   },
   brandLabel: {
@@ -175,10 +173,37 @@ const styles = StyleSheet.create({
   loginBtn: {
     width: '100%',
   },
-  socialBtnText: {
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.border,
+  },
+  dividerText: {
+    marginHorizontal: Spacing.base,
     fontSize: Typography.sm,
-    fontWeight: '700',
-    color: Colors.black,
+    color: Colors.secondary,
+    fontWeight: '500',
+    letterSpacing: Typography.wider,
+  },
+  socialRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: Spacing.base,
+    marginBottom: Spacing.xxl,
+  },
+  socialBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.md,
   },
   registerRow: {
     flexDirection: 'row',
@@ -216,7 +241,7 @@ const styles = StyleSheet.create({
   },
   footerContent: {
     backgroundColor: Colors.primary,
-    height: 90,
+    height: 80,
     alignItems: 'center',
     paddingTop: 0,
   },
@@ -233,11 +258,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 3,
     fontWeight: '800',
-  },
-  fixedBottomRibbon: {
-    backgroundColor: Colors.primary,
-    height: 12,
-    width: '100%',
   },
 });
 

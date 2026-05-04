@@ -45,18 +45,11 @@ const CartScreen = ({ navigation }) => {
   };
 
   const handleCheckout = () => {
-    if (cartItems.length === 0) return;
-    showModal({
-      title: 'Proceed to Checkout',
-      message: 'This feature is coming soon in the next clinical update. Would you like to keep exploring?',
-      text: 'View Cart',
-      confirmText: 'KEEP EXPLORING',
-      onConfirm: () => {
-        hideModal();
-        navigation.navigate('Catalogue');
-      },
-      variant: 'primary'
-    });
+    if (cartItems.length === 0) {
+      Alert.alert('Empty Bag', 'Please add items to your bag before checking out.');
+      return;
+    }
+    navigation.navigate('Checkout');
   };
 
   const handleRemoveItem = (item) => {
@@ -120,7 +113,7 @@ const CartScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" />
-
+      
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBack}>

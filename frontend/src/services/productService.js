@@ -61,11 +61,9 @@ const uploadImage = async (imageUri, productName = '') => {
       const res = await fetch(imageUri);
       blob = await res.blob();
     } else if (imageUri.startsWith('data:')) {
-      // data URL – convert to blob
       const res = await fetch(imageUri);
       blob = await res.blob();
     } else {
-      // assume file URL – fallback
       const res = await fetch(imageUri);
       blob = await res.blob();
     }
@@ -81,7 +79,7 @@ const uploadImage = async (imageUri, productName = '') => {
 
   const response = await api.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
-    timeout: 10000,
+    timeout: 30000, // Use the 30s timeout as requested by other module
   });
   return response.data.filePath; // backend returns { filePath: '/uploads/...' }
 };

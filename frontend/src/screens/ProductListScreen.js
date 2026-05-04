@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -27,7 +26,6 @@ const ProductListScreen = ({ navigation }) => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState([]);
   const [menuVisible, setMenuVisible] = useState(false);
 
   const { user } = useContext(AuthContext);
@@ -150,7 +148,7 @@ const ProductListScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Main Header (Sticky Navigation) */}
+      {/* Main Header */}
       <View style={styles.header}>
         {user?.isAdmin ? (
           <TouchableOpacity onPress={() => setMenuVisible(true)}>

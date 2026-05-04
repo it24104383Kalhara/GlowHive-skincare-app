@@ -1,6 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
 
 const getBaseUrl = () => {
@@ -40,13 +40,12 @@ const API_URL = `${BASE_SERVER_URL}/api`;
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000, // Increased to 30s as requested by order management
   headers: {
     'Content-Type': 'application/json',
+    'Bypass-Tunnel-Reminder': 'true',
   },
 });
-
-import { Alert } from 'react-native';
 
 // Attach JWT token to every request automatically
 api.interceptors.request.use(

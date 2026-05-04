@@ -13,9 +13,9 @@ const storage = multer.diskStorage({
   },
 });
 
-// ✅ Accept all file types (images + documents)
+// Accept all file types (images + documents) for chat support
 const fileFilter = (req, file, cb) => {
-  cb(null, true); // Allow everything (you can add restrictions later if needed)
+  cb(null, true);
 };
 
 const upload = multer({
@@ -24,9 +24,8 @@ const upload = multer({
   fileFilter,
 });
 
-// ✅ Upload endpoint – handles either "file" or "image" field
+// Upload endpoint – handles either "file" or "image" field
 router.post('/', (req, res, next) => {
-  // Use multer's .any() or manually handle the field name, but let's just intercept the request and allow both
   const uploadHandler = upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]);
   
   uploadHandler(req, res, (err) => {
@@ -41,12 +40,15 @@ router.post('/', (req, res, next) => {
     const file = req.files && (req.files.file ? req.files.file[0] : req.files.image ? req.files.image[0] : null);
     
     if (!file) {
-      console.error('No file received. Body keys:', Object.keys(req.body));
+      console.error('No file received.');
       return res.status(400).json({ error: 'No file uploaded. Expected field "file" or "image".' });
     }
+
     console.log('File uploaded successfully:', file.filename);
     const filePath = `/uploads/${file.filename}`;
     const url = `${req.protocol}://${req.get('host')}${filePath}`;
+    
+    // Return relative path and full URL
     res.json({ url, filePath });
   });
 });

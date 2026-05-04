@@ -55,7 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Hardcoded Admin Login (keep for backward compatibility)
+  // Hardcoded Admin Login
   if (email === 'admin@gmail.com' && password === 'admin123') {
     const adminDummyId = '000000000000000000000000';
     return res.json({
@@ -68,25 +68,21 @@ const authUser = asyncHandler(async (req, res) => {
     });
   }
 
-  try {
-    const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('+password');
 
-    if (user && (await user.matchPassword(password))) {
-      return res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id, user.role),
-      });
-    }
-  } catch (error) {
-    console.error('Database query failed:', error.message);
+  if (user && (await user.matchPassword(password))) {
+    return res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isAdmin: user.isAdmin,
+      token: generateToken(user._id, user.role),
+    });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
   }
-
-  res.status(401);
-  throw new Error('Invalid email or password');
 });
 
 // @desc    Get user profile

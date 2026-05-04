@@ -9,7 +9,6 @@ import {
   StatusBar,
   Image,
   ImageBackground,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -420,20 +419,6 @@ const styles = StyleSheet.create({
     letterSpacing: Typography.wider,
     color: Colors.secondary,
     fontWeight: '600',
-  },
-
-  // Floating cart
-  floatingCart: {
-    position: 'absolute',
-    bottom: 24,
-    left: 24,
-    backgroundColor: Colors.primary,
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Shadow.lg,
   },
 });
 

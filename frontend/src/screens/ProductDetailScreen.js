@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   Alert,
   Image,
   ActivityIndicator,
@@ -82,9 +81,8 @@ const ProductDetailScreen = ({ route, navigation }) => {
     setModalConfig(prev => ({ ...prev, visible: false }));
   };
 
-  // Helper: get seller ID from product.user (could be string or populated object)
+  // Helper: get seller ID from product.user (always use admin ID for now)
   const getSellerId = () => {
-    // Always use the hardcoded admin ID as the seller
     return '000000000000000000000000';
   };
 
@@ -103,6 +101,27 @@ const ProductDetailScreen = ({ route, navigation }) => {
       setReviews(data);
     } catch (error) {
       console.error('Failed to load reviews', error);
+    }
+  };
+
+  const loadProduct = async () => {
+    try {
+      const data = await productService.getProductById(route.params.productId);
+      setProduct(data);
+    } catch (error) {
+      console.error(error);
+      showModal({
+        title: 'Error',
+        message: 'Product record could not be retrieved from the archive.',
+        confirmText: 'RETRY',
+        onConfirm: () => {
+          hideModal();
+          loadProduct();
+        },
+        variant: 'danger'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,27 +180,6 @@ const ProductDetailScreen = ({ route, navigation }) => {
   const handleReviewEdit = (review) => {
     setEditingReview(review);
     setShowForm(true);
-  };
-
-  const loadProduct = async () => {
-    try {
-      const data = await productService.getProductById(route.params.productId);
-      setProduct(data);
-    } catch (error) {
-      console.error(error);
-      showModal({
-        title: 'Error',
-        message: 'Product record could not be retrieved from the archive.',
-        confirmText: 'RETRY',
-        onConfirm: () => {
-          hideModal();
-          loadProduct();
-        },
-        variant: 'danger'
-      });
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleAddToCart = () => {
@@ -276,7 +274,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
               disabled={product.stock === 0}
             />
 
-            {/* 👇 MESSAGE THE SELLER button – visible only to customers */}
+            {/* MESSAGE THE SELLER button – visible only to customers */}
             {user && !user.isAdmin && getSellerId() && (
               <GHButton
                 title="MESSAGE THE SELLER"
@@ -310,7 +308,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
             {/* Divider */}
             <View style={styles.divider} />
 
-            {/* Customer Review System — THE SOCIAL PROOF */}
+            {/* Customer Review System */}
             <View style={{ backgroundColor: '#F0F4F2', padding: 20, borderRadius: 15, marginTop: 40 }}>
               <Text style={{ color: '#2D4B43', fontWeight: '800', marginBottom: 10 }}>● REVIEW MODULE ACTIVE</Text>
               <Text style={styles.sectionTitle}>Customer Testimonials</Text>
@@ -385,19 +383,16 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: Radius.round,
-    backgroundColor: Colors.neutral,
+    backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    ...Shadow.md,
-    zIndex: 10,
+    ...Shadow.sm,
   },
   headerLogo: {
     fontSize: Typography.md,
     fontWeight: '700',
     color: Colors.black,
   },
-
-  // Image area
   imageArea: { paddingHorizontal: Spacing.base, marginBottom: Spacing.base },
   mainImageBox: {
     backgroundColor: Colors.primaryDark,
@@ -415,8 +410,6 @@ const styles = StyleSheet.create({
     letterSpacing: Typography.wider,
     fontWeight: '600',
   },
-
-  // Content
   contentPad: { paddingHorizontal: Spacing.base, paddingBottom: 150 },
   categoryLabel: {
     fontSize: Typography.xs,
@@ -459,9 +452,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.base,
   },
   addCartBtn: { width: '100%', marginBottom: Spacing.xl },
-  messageBtn: { marginTop: Spacing.sm, borderColor: Colors.primary }, // 👈 New style
+  messageBtn: { marginTop: Spacing.sm, borderColor: Colors.primary },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.xl },
-
   sectionTitle: {
     fontSize: Typography.lg + 2,
     fontFamily: 'Georgia',
@@ -507,8 +499,6 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     fontWeight: '500',
   },
-
-  // Reviews
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -521,38 +511,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   writeReviewBtn: { marginBottom: Spacing.xl },
-  reviewCard: {
-    backgroundColor: Colors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.base,
-    marginBottom: Spacing.base,
-    ...Shadow.sm,
-  },
-  reviewDate: {
-    fontSize: Typography.xs,
-    letterSpacing: Typography.wide,
-    color: Colors.secondary,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.sm,
-  },
-  reviewText: {
-    fontSize: Typography.sm,
-    color: Colors.black,
-    lineHeight: 20,
-    fontStyle: 'italic',
-    marginBottom: Spacing.sm,
-  },
-  reviewAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  reviewAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.primaryDark,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  reviewAvatarText: { color: Colors.white, fontSize: Typography.xs, fontWeight: '700' },
-  reviewAuthor: { fontSize: Typography.xs, fontWeight: '700', color: Colors.black, letterSpacing: Typography.wide },
   loginToReview: {
     fontSize: Typography.sm,
     color: Colors.secondary,
