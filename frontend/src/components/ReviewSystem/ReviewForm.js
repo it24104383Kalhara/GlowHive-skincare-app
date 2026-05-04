@@ -16,7 +16,7 @@ import GHButton from '../GHButton';
 import api, { BASE_SERVER_URL } from '../../services/api';
 
 const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
-  const [rating, setRating] = useState(initialData ? initialData.rating : 5);
+  const [rating, setRating] = useState(initialData ? initialData.rating : 0);
   const [comment, setComment] = useState(initialData ? initialData.comment : '');
   
   // Support legacy 'image' field for old reviews being edited
@@ -131,7 +131,7 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
       await onSubmit({ rating, comment, beforeImage, afterImage, productId });
       
       if (!initialData) {
-        setRating(5);
+        setRating(0);
         setComment('');
         setBeforeImage(null);
         setAfterImage(null);
@@ -149,10 +149,16 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
       <Text style={styles.title}>{initialData ? 'Edit Your Review' : 'Share Your Results'}</Text>
       <Text style={styles.subtitle}>Help the community by showing the Botanical Archive in action.</Text>
 
-      {/* Rating Stars */}
+      {/* Rating Stars (Optional) */}
       <View style={styles.ratingRow}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity key={star} onPress={() => setRating(star)}>
+          <TouchableOpacity 
+            key={star} 
+            onPress={() => {
+              // Toggle behavior: if clicking the same rating, set to 0 (unrated)
+              setRating(prev => prev === star ? 0 : star);
+            }}
+          >
             <Ionicons
               name={star <= rating ? 'star' : 'star-outline'}
               size={32}
@@ -161,6 +167,11 @@ const ReviewForm = ({ productId, onSubmit, initialData, onCancel, token }) => {
             />
           </TouchableOpacity>
         ))}
+        {rating > 0 && (
+          <TouchableOpacity onPress={() => setRating(0)} style={styles.clearRating}>
+            <Text style={styles.clearText}>Clear</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <TextInput
@@ -300,7 +311,18 @@ const styles = StyleSheet.create({
   },
   ratingRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: Spacing.md,
+  },
+  clearRating: {
+    marginLeft: 4,
+    padding: 4,
+  },
+  clearText: {
+    fontSize: 10,
+    color: Colors.secondary,
+    textTransform: 'uppercase',
+    fontWeight: '600',
   },
   input: {
     backgroundColor: Colors.white,

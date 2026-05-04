@@ -16,10 +16,9 @@ const createReview = asyncHandler(async (req, res) => {
   }
 
   // 2. Field Presence Validation
-  if (!rating) {
-    res.status(400);
-    throw new Error('Please provide a rating');
-  }
+  // Rating is now optional, defaults to 0 if not provided
+  const reviewRating = rating ? Number(rating) : 0;
+  
   if (!comment || comment.trim().length === 0) {
     res.status(400);
     throw new Error('Please fill the comment section');
@@ -30,7 +29,7 @@ const createReview = asyncHandler(async (req, res) => {
   }
 
   // 3. Data Range/Type Validation
-  if (rating < 1 || rating > 5) {
+  if (reviewRating > 0 && (reviewRating < 1 || reviewRating > 5)) {
     res.status(400);
     throw new Error('Rating must be between 1 and 5');
   }
@@ -60,7 +59,7 @@ const createReview = asyncHandler(async (req, res) => {
       user: req.user._id,
       product: productId,
       name: req.user.name,
-      rating: Number(rating),
+      rating: reviewRating,
       comment,
       beforeImage,
       afterImage,
@@ -69,8 +68,12 @@ const createReview = asyncHandler(async (req, res) => {
     // Update product average rating and number of reviews
     const reviews = await Review.find({ product: productId });
     product.numReviews = reviews.length;
-    product.rating =
-      reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
+    
+    // Only calculate average based on reviews that have a rating > 0
+    const reviewsWithRating = reviews.filter(r => r.rating > 0);
+    product.rating = reviewsWithRating.length > 0
+      ? reviewsWithRating.reduce((acc, item) => item.rating + acc, 0) / reviewsWithRating.length
+      : 0;
 
     await product.save();
 
@@ -117,8 +120,8 @@ const updateReview = asyncHandler(async (req, res) => {
     }
 
     // Validation for updates
-    if (rating !== undefined) {
-      if (rating < 1 || rating > 5) {
+    if (rating !== undefined && rating !== null) {
+      if (rating > 0 && (rating < 1 || rating > 5)) {
         res.status(400);
         throw new Error('Rating must be between 1 and 5');
       }
@@ -146,8 +149,10 @@ const updateReview = asyncHandler(async (req, res) => {
     const reviews = await Review.find({ product: review.product });
     const product = await Product.findById(review.product);
     if (product) {
-      product.rating =
-        reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
+      const reviewsWithRating = reviews.filter(r => r.rating > 0);
+      product.rating = reviewsWithRating.length > 0
+        ? reviewsWithRating.reduce((acc, item) => item.rating + acc, 0) / reviewsWithRating.length
+        : 0;
       await product.save();
     }
 
