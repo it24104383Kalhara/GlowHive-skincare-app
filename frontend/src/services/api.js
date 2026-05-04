@@ -46,6 +46,8 @@ const api = axios.create({
   },
 });
 
+import { Alert } from 'react-native';
+
 // Attach JWT token to every request automatically
 api.interceptors.request.use(
   async (config) => {
@@ -63,6 +65,25 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Global response handler for timeouts and network errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      Alert.alert(
+        'Connection Timeout',
+        'The Botanical Archive server is taking too long to respond. Please check your connection and try again.'
+      );
+    } else if (error.message === 'Network Error') {
+       Alert.alert(
+        'Network Error',
+        'Unable to reach the GlowHive servers. Please ensure your backend is running.'
+      );
+    }
+    return Promise.reject(error);
+  }
 );
 
 export default api;
