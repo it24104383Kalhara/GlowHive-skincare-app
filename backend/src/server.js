@@ -1,15 +1,30 @@
 require('dotenv').config();
+
+// ─── Global crash guards ───────────────────────────────────────────────────
+// Prevents the server from going down on unhandled promise rejections
+// (e.g. Mongoose CastError not caught by a controller)
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️  Unhandled Rejection at:', promise, '\n  Reason:', reason);
+  // Log but do NOT exit — keep the server alive
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠️  Uncaught Exception:', err);
+  // Log but do NOT exit — keep the server alive
+});
+// ──────────────────────────────────────────────────────────────────────────
+
 const express = require('express');
 const cors = require('cors');
-const http = require('http');                    // ✅ ADD THIS (for Socket.io)
-const socketIo = require('socket.io');           // ✅ ADD THIS
+const http = require('http');
+const socketIo = require('socket.io');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const messageRoutes = require('./routes/messageRoutes');
-const conversationRoutes = require('./routes/conversationRoutes');   // ✅ ADD THIS
+const conversationRoutes = require('./routes/conversationRoutes');
 
 const path = require('path');
 
@@ -75,6 +90,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('Client disconnected'));
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT} (with Socket.io)`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT} (with Socket.io, bound to 0.0.0.0)`);
 });

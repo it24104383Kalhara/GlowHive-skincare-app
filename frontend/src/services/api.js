@@ -1,15 +1,38 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// Use your actual backend port (default 5000 or 5001 – check your terminal)
 const getBaseUrl = () => {
+  // Web browser — localhost always works
   if (Platform.OS === 'web') {
-    return 'http://localhost:5001'; // Works perfectly for web browser testing
+    return 'http://localhost:5001';
   }
-  // Updated to match your computer's CURRENT local Wi-Fi IP address
-  return 'http://192.168.82.168:5001';
+
+  // If running on an Android Emulator, 10.0.2.2 is the special alias to your laptop's localhost
+  if (Platform.OS === 'android' && !Constants.isDevice) {
+    console.log('📱 Android Emulator detected. Using 10.0.2.2 alias');
+    return 'http://10.0.2.2:5001';
+  }
+
+  // Native (physical device)
+  // expo-constants gives us the host machine's IP via the Expo dev server
+  const debuggerHost =
+    Constants.expoConfig?.hostUri ||
+    Constants.manifest?.debuggerHost ||
+    Constants.manifest2?.extra?.expoGo?.debuggerHost;
+
+  if (debuggerHost) {
+    const ip = debuggerHost.split(':')[0];
+    const url = `http://${ip}:5001`;
+    console.log('🌐 API Base URL (auto-detected):', url);
+    return url;
+  }
+
+  // Last-resort fallback
+  const fallback = 'http://192.168.82.168:5001';
+  console.warn('⚠️  Could not auto-detect IP. Using fallback:', fallback);
+  return fallback;
 };
 
 export const BASE_SERVER_URL = getBaseUrl();
@@ -17,13 +40,13 @@ const API_URL = `${BASE_SERVER_URL}/api`;
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// ✅ Interceptor to add token to all requests (except maybe login/register if you want)
+// Attach JWT token to every request automatically
 api.interceptors.request.use(
   async (config) => {
     try {
